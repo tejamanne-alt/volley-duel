@@ -1,0 +1,11 @@
+{
+  "id": "marigold-street",
+  "name": "Marigold Street",
+  "theme": "street",
+  "look": "A cobbled street on the Day of the Dead: a net strung from a bakery to a balcony, papel picado overhead, candlelit altars, a brass band, petals underfoot",
+  "finisherMoment": "Thousands of marigold petals lift off the street and spiral along the ball's path",
+  "music": "brass",
+  "floor": "cobble",
+  "conditions": [],
+  "launchSet": false
+}

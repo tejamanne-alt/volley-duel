@@ -1,0 +1,35 @@
+{
+  // CPU tiers (spec table) and per-fighter personalities. Not part of the sim hash:
+  // the CPU only emits inputs, so replays and netplay never depend on this file.
+  "tiers": [
+    { "name": "Rookie",   "reaction": 30, "landingRead": "1.2",  "execution": "6.0", "readsYou": "0.15", "learns": false, "surge": "Rarely" },
+    { "name": "Club",     "reaction": 24, "landingRead": "0.8",  "execution": "4.0", "readsYou": "0.30", "learns": false, "surge": "WhenFull" },
+    { "name": "Pro",      "reaction": 18, "landingRead": "0.5",  "execution": "2.6", "readsYou": "0.45", "learns": true,  "surge": "WithPurpose" },
+    { "name": "National", "reaction": 14, "landingRead": "0.3",  "execution": "1.8", "readsYou": "0.60", "learns": true,  "surge": "SavesForDenials" },
+    { "name": "Legend",   "reaction": 12, "landingRead": "0.15", "execution": "1.1", "readsYou": "0.70", "learns": true,  "surge": "Optimal" }
+  ],
+  // Weights are base preferences (0-1) that utility scoring adjusts by situation and reads.
+  "personalities": {
+    "rafa":  { "jumpServe": "0.85", "block": "0.50", "fakeBlock": "0.10", "tip": "0.10", "roll": "0.05", "quickSet": "0.20", "dump": "0.02", "shortAim": "0.30", "deepAim": "0.40", "trick": "0.35", "digDepth": "4.3", "receiveDepth": "4.4" },
+    "defne": { "jumpServe": "0.40", "block": "0.85", "fakeBlock": "0.12", "tip": "0.12", "roll": "0.08", "quickSet": "0.45", "dump": "0.05", "shortAim": "0.40", "deepAim": "0.25", "trick": "0.30", "digDepth": "4.0", "receiveDepth": "4.2" },
+    "rin":   { "jumpServe": "0.15", "block": "0.15", "fakeBlock": "0.20", "tip": "0.18", "roll": "0.12", "quickSet": "0.50", "dump": "0.08", "shortAim": "0.35", "deepAim": "0.35", "trick": "0.35", "digDepth": "4.6", "receiveDepth": "4.5" },
+    "arjun": { "jumpServe": "0.35", "block": "0.35", "fakeBlock": "0.35", "tip": "0.28", "roll": "0.17", "quickSet": "0.40", "dump": "0.15", "shortAim": "0.35", "deepAim": "0.35", "trick": "0.40", "digDepth": "4.2", "receiveDepth": "4.3" }
+  },
+  "habits": { "decay": "0.9", "minimumEvidence": "2" },
+  "rival": { "step": "0.15", "startBlend": "0.5" },
+  // Shared CPU skill constants.
+  "skill": {
+    "arriveTolerance": "0.06",
+    "stickGain": "12",
+    "baseDefenseDepth": "3.6",
+    "blockSpot": "0.45",
+    "shortDigDepth": "2.4",
+    "deepDigDepth": "4.6",
+    "jumpServeBackoff": "1.1",
+    "serveDelayMin": 25,
+    "serveDelayMax": 70,
+    "stanceLead": 18,
+    "tempoVariation": 3,          // frames a hitter varies its approach so blocks are a timing battle
+    "blockTimingScale": "2"       // block timing is read off the hitter, so it is noisier than a bump
+  }
+}

@@ -22,6 +22,9 @@ namespace VolleyDuel.Gates
         public static readonly string[] GatedAssemblies =
         {
             "Duel.Core.Sim",
+            "VolleyDuel.Sim",
+            "Duel.Core.AI",
+            "VolleyDuel.AI",
         };
 
         static readonly string[] BannedTypePrefixes =

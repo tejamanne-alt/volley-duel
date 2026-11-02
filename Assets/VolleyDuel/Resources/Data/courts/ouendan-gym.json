@@ -1,0 +1,12 @@
+{
+  "id": "ouendan-gym",
+  "name": "Ouendan Gym",
+  "theme": "school",
+  "look": "A Japanese high-school gym on tournament day: polished wood, a stage at one end, hand-lettered banners, a cheer squad with taiko drums and giant flags",
+  "finisherMoment": "The taiko line hits in unison and the flags whip across the stands",
+  "music": "taiko",
+  "homeOf": "rin",
+  "floor": "hardwood",
+  "conditions": [],
+  "launchSet": true
+}

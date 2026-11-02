@@ -1,0 +1,11 @@
+{
+  "id": "skydome-finals",
+  "name": "Skydome Finals",
+  "theme": "arena",
+  "look": "A retractable-roof world-finals stadium in a neon metropolis: holographic court lines, drone cameras, a glass skyline beyond the upper deck",
+  "finisherMoment": "The roof splits open and fireworks bloom over the court",
+  "music": "finals-synth",
+  "floor": "sportfloor",
+  "conditions": [],
+  "launchSet": false
+}

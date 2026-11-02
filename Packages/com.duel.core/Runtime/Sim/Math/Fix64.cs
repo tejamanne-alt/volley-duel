@@ -8,7 +8,7 @@ namespace Duel.Core.Sim
     /// platform and runtime (Mono, IL2CPP, CoreCLR; ARM64 and x64).
     /// Overflow saturates to <see cref="MaxValue"/> / <see cref="MinValue"/>.
     /// </summary>
-    public readonly struct Fix64 : IEquatable<Fix64>, IComparable<Fix64>
+    public readonly struct Fix64 : IEquatable<Fix64>, IComparable<Fix64>, IComparable
     {
         public const int FractionalBits = 32;
         public const long OneRaw = 1L << FractionalBits;
@@ -162,6 +162,8 @@ namespace Duel.Core.Sim
         public override bool Equals(object obj) => obj is Fix64 other && Raw == other.Raw;
         public override int GetHashCode() => Raw.GetHashCode();
         public int CompareTo(Fix64 other) => Raw.CompareTo(other.Raw);
+
+        public int CompareTo(object obj) => obj is Fix64 other ? Raw.CompareTo(other.Raw) : 1;
 
         // ---------------------------------------------------------------- helpers
 

@@ -1,0 +1,13 @@
+{
+  "id": "rooftop-court",
+  "name": "Rooftop Court",
+  "theme": "school",
+  "look": "A school rooftop in a dense harbor city at sunset: chain-link fence, water tanks, laundry on neighboring balconies, a jet on low approach every minute",
+  "finisherMoment": "A jet roars overhead on cue and its landing lights sweep the court",
+  "music": "city-pop",
+  "floor": "concrete",
+  "conditions": [
+    "wind"
+  ],
+  "launchSet": false
+}

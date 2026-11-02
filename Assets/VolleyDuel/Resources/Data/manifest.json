@@ -1,0 +1,24 @@
+{
+  "tuning": "tuning",
+  "cpu": "cpu",
+  "fighters": [
+    "rafa",
+    "defne",
+    "rin",
+    "arjun"
+  ],
+  "courts": [
+    "showcase-night",
+    "the-cauldron",
+    "skydome-finals",
+    "ouendan-gym",
+    "rooftop-court",
+    "alpine-academy",
+    "floodlight-village",
+    "marigold-street",
+    "the-overpass",
+    "mosaic-promenade",
+    "black-sand-coast",
+    "glow-lagoon"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "arjun",
+  "name": "Arjun \"Mirage\" Nair",
+  "shortName": "Arjun",
+  "nickname": "Mirage",
+  "role": "The trickster",
+  "origin": "Kozhikode",
+  "height": "1.84",
+  "homeCourt": "floodlight-village",
+  "identityColor": "#C9922A",
+  "attributes": { "power": 5, "jump": 7, "speed": 7, "control": 9, "dig": 5, "block": 3 },
+  "mastery": { "name": "Sleight", "kind": "Sleight" },
+  "traits": {
+    // Sleight: attack choice locks 6 frames later; his self-sets are the most accurate in the game.
+    "lateLockExtra": 6,
+    "setErrorScale": "0.6"
+  },
+  "tricks": {
+    "offenseA": {
+      "kind": "BlindSet",         // no-look set that hides height and tempo until it leaves his hands
+      "startup": 9, "recovery": 16,
+      "flags": ["HideTelegraph"],
+      "amped": { "startupDelta": -3, "flags": ["DumpOption"] }
+    },
+    "offenseB": {
+      "kind": "KalariTwist",      // mid-air twist turns a deep swing into a steep, short spike
+      "startup": 11, "recovery": 20,
+      "targetFromNet": "1.6",
+      "amped": { "startupDelta": -3, "decoyFrames": 8 }
+    },
+    "defense": {
+      "kind": "Decoy",            // a mirage leaps to block while he stays back to dig
+      "startup": 7, "recovery": 24,
+      "decoyFrames": 10,
+      "amped": { "startupDelta": -3, "decoyFrames": 90 }
+    }
+  },
+  "finisher": { "kind": "Maya", "trigger": "SecondTouch", "frames": 150, "denialStart": 98, "denialFrames": 5 }
+}

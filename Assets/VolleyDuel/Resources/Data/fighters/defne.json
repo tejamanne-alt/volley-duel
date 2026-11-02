@@ -1,0 +1,44 @@
+{
+  "id": "defne",
+  "name": "Defne \"Bastion\" Yıldız",
+  "shortName": "Defne",
+  "nickname": "Bastion",
+  "role": "The wall",
+  "origin": "Istanbul",
+  "height": "1.93",
+  "homeCourt": "the-cauldron",
+  "identityColor": "#2456C7",
+  "attributes": { "power": 7, "jump": 6, "speed": 4, "control": 5, "dig": 5, "block": 9 },
+  "mastery": { "name": "Fortress", "kind": "Fortress" },
+  "traits": {
+    // Fortress: block reaches 20% wider, and her Good blocks stuff the ball.
+    "blockSpanScale": "1.2",
+    "goodBlocksStuff": true,
+    // Weakness: slow backpedal and an average dig.
+    "backpedalScale": "0.65"
+  },
+  "tricks": {
+    "offenseA": {
+      "kind": "Slide",            // one-foot approach that drifts into the net and hits point-blank
+      "startup": 9, "recovery": 18,
+      "drift": "1.1",
+      "timingShift": 4,
+      "amped": { "startupDelta": -3, "driftScale": "1.5", "flags": ["HideTelegraph"] }
+    },
+    "offenseB": {
+      "kind": "OverpassHammer",   // kills a ball sent back tight to the net on the first touch
+      "startup": 8, "recovery": 16,
+      "maxFromNet": "1.2",
+      "speedScale": "1.3",
+      "flags": ["Unblockable", "PerfectOnly"],
+      "amped": { "startupDelta": -3, "flags": ["WinsJousts"] }
+    },
+    "defense": {
+      "kind": "CommitBlock",      // leaps early and holds hands over the net
+      "startup": 6, "recovery": 28,
+      "hangFrames": 18,
+      "amped": { "startupDelta": -3, "flags": ["LandInDigStance"] }
+    }
+  },
+  "finisher": { "kind": "Citadel", "trigger": "AfterOwnBlock", "frames": 160, "denialStart": 110, "denialFrames": 5 }
+}

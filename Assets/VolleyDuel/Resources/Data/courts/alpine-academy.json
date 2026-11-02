@@ -1,0 +1,13 @@
+{
+  "id": "alpine-academy",
+  "name": "Alpine Academy",
+  "theme": "school",
+  "look": "A boarding school's snow court at bright noon: packed snow, fir trees, a chalet dorm, students with thermoses, breath clouds in the cold",
+  "finisherMoment": "The chalet roof dumps its snow in slow motion",
+  "music": "alpine-folk",
+  "floor": "snow",
+  "conditions": [
+    "snow"
+  ],
+  "launchSet": false
+}

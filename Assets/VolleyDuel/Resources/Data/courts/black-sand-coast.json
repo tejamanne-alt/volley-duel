@@ -1,0 +1,14 @@
+{
+  "id": "black-sand-coast",
+  "name": "Black Sand Coast",
+  "theme": "beach",
+  "look": "A volcanic black-sand beach at dusk: basalt columns, heavy surf, a smoking volcano with lava glowing on its slopes",
+  "finisherMoment": "The volcano erupts on the horizon and lava fountains turn the sky red",
+  "music": "surf-drone",
+  "floor": "sand",
+  "conditions": [
+    "sand",
+    "wind"
+  ],
+  "launchSet": false
+}

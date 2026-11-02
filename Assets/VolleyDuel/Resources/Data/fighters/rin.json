@@ -1,0 +1,41 @@
+{
+  "id": "rin",
+  "name": "Rin \"Inkline\" Takeda",
+  "shortName": "Rin",
+  "nickname": "Inkline",
+  "role": "The libero",
+  "origin": "Kyoto",
+  "height": "1.62",
+  "homeCourt": "ouendan-gym",
+  "identityColor": "#D2342B",
+  "attributes": { "power": 3, "jump": 6, "speed": 8, "control": 7, "dig": 9, "block": 3 },
+  "mastery": { "name": "Nothing Drops", "kind": "NothingDrops" },
+  "traits": {
+    // Nothing Drops: the widest dig window, plus one floor save per rally on any ball inside her dive range.
+    "digPerfectBonus": 2,
+    "guaranteedFloorSave": true
+  },
+  "tricks": {
+    "offenseA": {
+      "kind": "InkReturn",        // digs a hard spike straight back over the net
+      "startup": 8, "recovery": 16,
+      "speedScale": "0.75",
+      "targetFromNet": "2.2",
+      "amped": { "startupDelta": -3, "targetFromNet": "0.9", "flags": ["Unblockable"] }
+    },
+    "offenseB": {
+      "kind": "QuickStroke",      // low self-set into an instant attack
+      "startup": 10, "recovery": 18,
+      "readCut": 8,
+      "flags": ["NoQuickPenalty"],
+      "amped": { "startupDelta": -3, "flags": ["LateAim"] }
+    },
+    "defense": {
+      "kind": "Sweep",            // 3 m sliding dive
+      "startup": 6, "recovery": 30,
+      "range": "3.0",
+      "amped": { "startupDelta": -3, "flags": ["GoodAtWorst"] }
+    }
+  },
+  "finisher": { "kind": "Ippitsu", "trigger": "PerfectDig", "frames": 170, "denialStart": 115, "denialFrames": 6 }
+}

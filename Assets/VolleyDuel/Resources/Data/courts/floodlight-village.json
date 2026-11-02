@@ -1,0 +1,12 @@
+{
+  "id": "floodlight-village",
+  "name": "Floodlight Village",
+  "theme": "street",
+  "look": "A Kerala village tournament at night: a mud court ringed by bamboo-and-thatch galleries, floodlights on bamboo poles, coconut palms, a chenda drum troupe",
+  "finisherMoment": "The drums hit their crescendo and festival fireworks light the palms",
+  "music": "chenda",
+  "homeOf": "arjun",
+  "floor": "mud",
+  "conditions": [],
+  "launchSet": true
+}

@@ -1,0 +1,240 @@
+{
+  // Volley Duel gameplay tuning. Every number the sim uses lives here or in fighters/*.json.
+  // Units: meters, seconds (speeds in m/s), frames at 60 Hz, world frames (paused by hit-stop).
+  // Values marked "spec" come from the concept doc; the rest are starting points for playtests.
+  "court": {
+    "halfLength": "6",            // spec: 12 m Duel Court, net at x = 0
+    "serviceDepth": "1",          // spec: service zone extends 1 m behind each end line
+    "freeZone": "2.5",
+    "netHeight": "2.35",          // spec
+    "ballRadius": "0.105",        // spec
+    "netTouchDistance": "0.12",   // an airborne fighter whose center gets this close to the net touches it
+    "groundedNetGap": "0.3",      // grounded fighters stop this far from the net
+    "centerLineTolerance": "0.15" // a foot this far across the center line is a fault
+  },
+  "ball": {
+    "gravity": "9.81",            // spec
+    "netRestitution": "0.25",
+    "netCordOverChance": "0.5",
+    "floorRestitution": "0.45",
+    "floatWobbleNudges": 3,
+    "floatWobbleFirstFrame": 14,
+    "floatWobbleInterval": 10,
+    "floatWobbleMax": "0.9",      // m/s added to the float serve's horizontal speed per nudge, from the match RNG
+    "topspinDipGravity": "3.5",   // extra downward acceleration after a topspin serve crosses the net
+    "predictionHorizon": 240
+  },
+  "rings": {
+    "perfectBase": 4,             // spec: Perfect is 4 frames, ±1 per 2 attribute points from 5
+    "goodBase": 10,               // spec: Good is 10 frames, ±1 per point from 5
+    "minPerfect": 2,
+    "minGood": 5,
+    "lateBand": 6,                // frames beyond Good on each side that still connect, graded Late
+    "leadFrames": 45,             // how early a ring is shown
+    "bufferFrames": 6,            // spec: 6-frame input buffer
+    "lockFrames": 3,              // spec: direction and button within 3 frames are simultaneous
+    "simpleModeScale": "1.5",
+    "digStanceGoodBonus": 2,
+    "digStancePressureRelief": "0.05"
+  },
+  "contact": {
+    "timingPerfect": "1.00",      // spec: contact model Q = T + 0.03 (A - 5) - P - S
+    "timingGood": "0.65",
+    "timingLate": "0.30",
+    "attributeSlope": "0.03",
+    "pressureMax": "0.35",        // spec: up to 0.35 from ball speed
+    "pressureSpeedLow": "14",
+    "pressureSpeedHigh": "34",
+    "heavyBallPressure": "0.15",  // spec
+    "staminaPenaltyMax": "0.15",  // spec: up to 0.15 below 30 Stamina
+    "staminaPenaltyBelow": "30",
+    "controlled": "0.85",         // spec bands
+    "loose": "0.55",
+    "shank": "0.30",
+    "looseAimError": "1.6",       // meters of aim error at Q = 0.55, shrinking to 0 at 0.85
+    "looseHeightError": "0.9",
+    "shankSpeedMin": "5",
+    "shankSpeedMax": "12",
+    "bumpSetPenalty": "0.10"      // a set played low off the forearms
+  },
+  "movement": {
+    "walkSpeedBase": "4.0",
+    "walkSpeedPerPoint": "0.25",
+    "accelFrames": 5,
+    "backpedalScale": "0.85",
+    "digStanceScale": "0.35",
+    "digStanceStick": 5,          // stick at or beyond -5 while defending sinks into dig stance
+    "deadzone": 1
+  },
+  "jump": {
+    "heightBase": "0.60",
+    "heightPerPoint": "0.05",
+    "startupFrames": 4,
+    "blockStartupFrames": 3,
+    "blockHeightScale": "0.8",
+    "approachCarry": "0.35",
+    "maxDrift": "1.3",
+    "landingRecovery": 6,
+    "fakeHopHeight": "0.12",
+    "fakeHopRecovery": 3
+  },
+  "reach": {
+    "standingReachRatio": "1.33",
+    "handForward": "0.28",
+    "spikeReachRadius": "0.55",
+    "bumpHeight": "0.8",
+    "bumpReach": "0.8",
+    "setHeightAboveHead": "0.15",
+    "setReach": "0.6",
+    "minContactHeight": "0.2",
+    "bodyHalfWidth": "0.22",
+    "commitStepSpeed": "3.0",
+    "touchRecovery": 8,           // frames after a grounded touch before the next action
+    "netReachOver": "0.15"        // how far over the net a contact point may be (jousts, tight balls)
+  },
+  "dive": {
+    "rangeBase": "1.5",
+    "rangePerDigPoint": "0.1",
+    "speed": "7.5",
+    "recovery": 32
+  },
+  "pass": {
+    "targetFromNet": "1.6",
+    "peakHeight": "4.2",
+    "saveDepth": "3.5",           // third-touch bump over the net lands this deep
+    "savePeak": "4.6"
+  },
+  "set": {
+    "quickPeakAboveNet": "0.6",   // spec
+    "quickTargetFromNet": "0.6",
+    "quickReadCut": 8,            // spec: blocker gets 8 fewer frames to read
+    "quickPowerScale": "0.85",    // spec
+    "highPeakAboveNet": "3.0",    // spec
+    "highTargetFromNet": "0.9",
+    "highBlockWiden": 2,          // spec: widens the block ring by 2 frames
+    "missedPowerScale": "0.6",    // spec: a missed set ring allows only a weak hit or a tip
+    "quickStick": 3               // stick toward the net at or beyond +3 makes a quick set
+  },
+  "attack": {
+    "spikeBaseSpeed": "17",       // spec: 17 m/s plus 1 per Power point above 5
+    "spikeSpeedPerPower": "1",
+    "chargeFrames": 12,           // spec
+    "chargeBonus": "0.15",        // spec
+    "tipSpeedMin": "4",           // spec: tips travel at 4-6 m/s
+    "tipSpeedMax": "6",
+    "rollSpeed": "8.5",
+    "shortFromNet": "1.8",
+    "midFromNet": "3.6",
+    "deepFromNet": "5.6",
+    "tipFromNet": "1.3",
+    "rollFromNet": "5.3",
+    "tipLift": "0.9",             // a tip arcs this high above the net before dropping
+    "rollLift": "1.2",            // a roll shot arcs this high above its contact point
+    "aimStick": 3,
+    "netClearance": "0.12",
+    "standingHitPowerScale": "0.6"
+  },
+  "block": {
+    "rangeFromNet": "0.75",
+    "perfectHalf": 2,             // spec: Perfect ±2 frames stuffs
+    "goodHalf": 5,                // spec: Good ±5 softens into a free ball
+    "contactHalf": 12,
+    "handTopAboveReach": "0.12",
+    "stuffSpeed": "10",
+    "softPopSpeed": "5.5",
+    "softBackSpeed": "1.4",
+    "toolDepthPastLine": "1.8",
+    "toolPeak": "3.6"
+  },
+  "serve": {
+    "standFromNet": "6.5",
+    "floatTossHeight": "0.9",
+    "floatSpeedBase": "13",
+    "floatSpeedPerPower": "0.5",
+    "floatClearance": "0.35",
+    "jumpTossHeight": "3.1",
+    "jumpTossForward": "0.9",
+    "jumpApproachDistance": "0.7",
+    "jumpSpeedBase": "18",
+    "jumpSpeedPerPower": "1",
+    "jumpClearance": "0.15",
+    "shortFromNet": "2.2",
+    "midFromNet": "4.0",
+    "deepFromNet": "5.6",
+    "timeoutFrames": 480
+  },
+  "feint": {
+    "biteStamina": 15,            // spec
+    "biteRecovery": 8,            // spec
+    "tipBaitFrames": 10,
+    "dumpBaitFrames": 10,
+    "fakeBlockBaitFrames": 24     // covers a hitter reacting to the hop
+  },
+  "meters": {
+    "surgeMax": 300,              // spec
+    "surgeBar": 100,
+    "gainKill": 30,               // spec gains
+    "gainAce": 40,
+    "gainStuff": 50,
+    "gainPerfectDig": 25,
+    "gainFloorSave": 35,
+    "gainReadTip": 20,
+    "gainJoust": 30,
+    "gainBiteDrawn": 10,
+    "gainScoredOn": 10,
+    "costAmped": 100,             // spec costs
+    "costDenial": 100,
+    "costFinisher": 300,
+    "simpleSurgeScale": "0.5",
+    "staminaMax": "100",
+    "costJump": "12",             // spec stamina costs
+    "costDive": "18",
+    "costJumpServe": "20",
+    "costBite": "15",
+    "refillPerSecond": "20",      // spec
+    "refillDeadBall": "40",       // spec
+    "gassedRecoverAt": "30",      // spec
+    "gassedJumpScale": "0.75",    // spec: jump height -25%
+    "gassedDiveScale": "0.7"      // spec: dive range -30%
+  },
+  "onRun": {
+    "streak": 3,                  // spec
+    "perfectScale": "1.5",        // spec: Perfect window +50%
+    "breakerSurge": 100           // spec
+  },
+  "scoring": {
+    "setTarget": 7,               // spec: first to 7, win by 2, capped at 9
+    "winBy": 2,
+    "setCap": 9,
+    "setsToWin": 2,
+    "finisherPoints": 2
+  },
+  "flow": {
+    "introFrames": 90,
+    "deadBallFrames": 105,
+    "setBreakFrames": 180,
+    "receiveFromNet": "4.0",
+    "setPointSlowDiv": 3
+  },
+  "impacts": {
+    // Sim-owned part of each impact recipe: hit-stop and slow motion. Camera and callout are
+    // read by presentation from the same entries.
+    "kill":       { "hitStop": 8,  "slowDiv": 1, "slowFrames": 0,  "camera": "PunchIn",           "callout": "KILL!" },
+    "stuff":      { "hitStop": 12, "slowDiv": 2, "slowFrames": 12, "camera": "SnapZoomHands",     "callout": "STUFFED!" },
+    "ace":        { "hitStop": 10, "slowDiv": 1, "slowFrames": 0,  "camera": "PushInLanding",     "callout": "ACE!" },
+    "floorSave":  { "hitStop": 6,  "slowDiv": 1, "slowFrames": 0,  "camera": "LowTilt",           "callout": "PANCAKE!" },
+    "perfectDig": { "hitStop": 4,  "slowDiv": 1, "slowFrames": 0,  "camera": "Nudge",             "callout": "DUG!" },
+    "tooled":     { "hitStop": 6,  "slowDiv": 1, "slowFrames": 0,  "camera": "WhipPan",           "callout": "TOOLED!" },
+    "readTip":    { "hitStop": 4,  "slowDiv": 1, "slowFrames": 0,  "camera": "QuickZoomDefender", "callout": "READ IT!" },
+    "joust":      { "hitStop": 10, "slowDiv": 1, "slowFrames": 0,  "camera": "FreezeSnap",        "callout": "JOUST!" },
+    "denial":     { "hitStop": 12, "slowDiv": 1, "slowFrames": 0,  "camera": "HardCut",           "callout": "DENIED!" },
+    "setPoint":   { "hitStop": 0,  "slowDiv": 3, "slowFrames": 0,  "camera": "SetPointCut",       "callout": "SET POINT" },
+    "matchPoint": { "hitStop": 0,  "slowDiv": 3, "slowFrames": 0,  "camera": "MatchPointCut",     "callout": "MATCH POINT" }
+  },
+  "conditions": {
+    // Optional Local Conditions toggle for casual play; Duel rules ignore all of this.
+    "sandDragScale": "0.9",
+    "snowAccelScale": "0.5",
+    "windMax": "0.35"
+  }
+}

@@ -9,6 +9,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.Tests", "Duel.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolleyDuel.Gates", "Gates\VolleyDuel.Gates.csproj", "{1720EDE9-2057-4D0F-B59B-46FFB95732DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolleyDuel.Sim", "VolleyDuel.Sim\VolleyDuel.Sim.csproj", "{C9EA2FA7-E76A-41CB-BE0E-8923FA09C5AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.AI", "Duel.Core.AI\Duel.Core.AI.csproj", "{6D1D162D-AB6D-4FB8-82EE-1C5333B43436}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolleyDuel.AI", "VolleyDuel.AI\VolleyDuel.AI.csproj", "{6D0B3383-0E7F-4F25-B730-511557D371FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolleyDuel.BalanceLab", "VolleyDuel.BalanceLab\VolleyDuel.BalanceLab.csproj", "{7913BCB1-CBDF-4280-AD98-7767434036CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolleyDuel.Tests", "VolleyDuel.Tests\VolleyDuel.Tests.csproj", "{0E873BF9-0CFE-4EF4-9BBB-005416BC214B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +40,25 @@ Global
 		{1720EDE9-2057-4D0F-B59B-46FFB95732DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1720EDE9-2057-4D0F-B59B-46FFB95732DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1720EDE9-2057-4D0F-B59B-46FFB95732DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9EA2FA7-E76A-41CB-BE0E-8923FA09C5AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9EA2FA7-E76A-41CB-BE0E-8923FA09C5AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9EA2FA7-E76A-41CB-BE0E-8923FA09C5AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9EA2FA7-E76A-41CB-BE0E-8923FA09C5AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D1D162D-AB6D-4FB8-82EE-1C5333B43436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1D162D-AB6D-4FB8-82EE-1C5333B43436}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1D162D-AB6D-4FB8-82EE-1C5333B43436}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1D162D-AB6D-4FB8-82EE-1C5333B43436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D0B3383-0E7F-4F25-B730-511557D371FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D0B3383-0E7F-4F25-B730-511557D371FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D0B3383-0E7F-4F25-B730-511557D371FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D0B3383-0E7F-4F25-B730-511557D371FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7913BCB1-CBDF-4280-AD98-7767434036CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7913BCB1-CBDF-4280-AD98-7767434036CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7913BCB1-CBDF-4280-AD98-7767434036CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7913BCB1-CBDF-4280-AD98-7767434036CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E873BF9-0CFE-4EF4-9BBB-005416BC214B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E873BF9-0CFE-4EF4-9BBB-005416BC214B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E873BF9-0CFE-4EF4-9BBB-005416BC214B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E873BF9-0CFE-4EF4-9BBB-005416BC214B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

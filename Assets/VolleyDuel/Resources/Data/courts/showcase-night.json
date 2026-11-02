@@ -1,0 +1,11 @@
+{
+  "id": "showcase-night",
+  "name": "Showcase Night",
+  "theme": "arena",
+  "look": "A pro basketball arena rigged for one volleyball night: the key and three-point arcs still show under fresh court tape, a center-hung jumbotron, LED ribbon boards, a dance team, courtside photographers",
+  "finisherMoment": "The arena blacks out, spotlights converge, and the ribbon boards run the fighter's motif",
+  "music": "arena-anthem",
+  "floor": "hardwood",
+  "conditions": [],
+  "launchSet": true
+}

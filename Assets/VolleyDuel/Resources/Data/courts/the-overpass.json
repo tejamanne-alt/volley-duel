@@ -1,0 +1,11 @@
+{
+  "id": "the-overpass",
+  "name": "The Overpass",
+  "theme": "street",
+  "look": "A concrete court under an elevated highway: floor-to-ceiling graffiti murals, sodium lights, a boombox crew, trucks rumbling overhead",
+  "finisherMoment": "The murals come alive, spray paint bursting in the fighter's colors and dripping down the pillars",
+  "music": "boom-bap",
+  "floor": "concrete",
+  "conditions": [],
+  "launchSet": false
+}

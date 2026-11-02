@@ -1,0 +1,45 @@
+{
+  "id": "rafa",
+  "name": "Rafa \"Cannon\" Duarte",
+  "shortName": "Rafa",
+  "nickname": "Cannon",
+  "role": "The power hitter",
+  "origin": "Rio de Janeiro",
+  "height": "1.98",
+  "homeCourt": "mosaic-promenade",
+  "identityColor": "#1FA463",
+  "attributes": { "power": 9, "jump": 7, "speed": 5, "control": 3, "dig": 5, "block": 7 },
+  "mastery": { "name": "Heavy Ball", "kind": "HeavyBall" },
+  "traits": {
+    // Heavy Ball: any dig short of Perfect against his spikes and jump serves is shanked, and every dig against them costs Stamina.
+    "heavyBall": true,
+    "heavyBallDigStamina": "8",
+    "chargeFrames": 8,            // spec: full power in 8 frames instead of 12
+    // Weakness: slowest landing recovery, weakest touch, hungriest Stamina.
+    "landingRecoveryExtra": 4,
+    "staminaCostScale": "1.3"
+  },
+  "tricks": {
+    "offenseA": {
+      "kind": "Afterburner",      // jump serve at top speed
+      "startup": 10, "recovery": 18,
+      "speedScale": "1.22",
+      "amped": { "startupDelta": -3, "ringShrink": 3, "dipScale": "1.6" }
+    },
+    "offenseB": {
+      "kind": "PipeShot",         // spike from deep that lands on the end line
+      "startup": 12, "recovery": 20,
+      "minFromNet": "2.5",
+      "targetFromNet": "5.85",
+      "speedScale": "1.0",
+      "amped": { "startupDelta": -3, "flags": ["CantStuff"] }
+    },
+    "defense": {
+      "kind": "ShockwaveBlock",   // slam block; shock ring delays the hitter's next action
+      "startup": 8, "recovery": 26,
+      "knockbackFrames": 10,
+      "amped": { "startupDelta": -3, "staminaDrain": "25" }
+    }
+  },
+  "finisher": { "kind": "SoundBarrier", "trigger": "OwnServe", "frames": 150, "denialStart": 100, "denialFrames": 5 }
+}

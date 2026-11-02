@@ -1,0 +1,14 @@
+{
+  "id": "glow-lagoon",
+  "name": "Glow Lagoon",
+  "theme": "beach",
+  "look": "A tropical lagoon at night: bioluminescent surf that glows blue under every step, lanterns, overwater bungalows, a fire-dancer troupe",
+  "finisherMoment": "A wave breaks along the whole shore and the glow flares bright",
+  "music": "lagoon-percussion",
+  "floor": "sand",
+  "conditions": [
+    "sand",
+    "wind"
+  ],
+  "launchSet": false
+}

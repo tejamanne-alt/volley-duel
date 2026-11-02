@@ -1,0 +1,15 @@
+{
+  "id": "mosaic-promenade",
+  "name": "Mosaic Promenade",
+  "theme": "beach",
+  "look": "A city beach at golden hour: a wave-patterned stone promenade, kiosks, footvolley kids, a samba drum line, a granite peak on the horizon",
+  "finisherMoment": "The drum line hits its break and confetti cannons fire from the kiosks",
+  "music": "samba",
+  "homeOf": "rafa",
+  "floor": "sand",
+  "conditions": [
+    "sand",
+    "wind"
+  ],
+  "launchSet": true
+}

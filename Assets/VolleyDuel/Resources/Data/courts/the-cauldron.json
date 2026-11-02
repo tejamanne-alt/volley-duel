@@ -1,0 +1,12 @@
+{
+  "id": "the-cauldron",
+  "name": "The Cauldron",
+  "theme": "arena",
+  "look": "A European volleyball palace with steep stands of ultras: drums, giant flags, colored smoke, a hot-orange sport floor",
+  "finisherMoment": "A full-stand tifo unfurls with the fighter's emblem",
+  "music": "ultras-drums",
+  "homeOf": "defne",
+  "floor": "sportfloor",
+  "conditions": [],
+  "launchSet": false
+}

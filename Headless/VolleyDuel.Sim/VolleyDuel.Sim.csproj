@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>VolleyDuel.Sim</AssemblyName>
+    <RootNamespace>VolleyDuel.Sim</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(GameRoot)Sim/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Duel.Core.Sim/Duel.Core.Sim.csproj" />
+  </ItemGroup>
+</Project>
