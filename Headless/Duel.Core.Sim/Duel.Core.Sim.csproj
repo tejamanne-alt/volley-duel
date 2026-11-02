@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>Duel.Core.Sim</AssemblyName>
+    <RootNamespace>Duel.Core.Sim</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(CorePackage)Runtime/Sim/**/*.cs" />
+  </ItemGroup>
+</Project>

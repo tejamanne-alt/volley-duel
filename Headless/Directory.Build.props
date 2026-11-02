@@ -1,0 +1,25 @@
+<Project>
+  <!--
+    Headless build of the engine-free assemblies. Sources live in the Unity folders
+    (Packages/com.duel.core, Assets/VolleyDuel, Tools) and are compiled here at the
+    same language level and API surface Unity uses: C# 9 and .NET Standard 2.1.
+  -->
+  <PropertyGroup>
+    <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))/</RepoRoot>
+    <CorePackage>$(RepoRoot)Packages/com.duel.core/</CorePackage>
+    <GameRoot>$(RepoRoot)Assets/VolleyDuel/</GameRoot>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+    <Deterministic>true</Deterministic>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+</Project>

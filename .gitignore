@@ -1,0 +1,44 @@
+# ---- Unity ----
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
+sysinfo.txt
+crashlytics-build.properties
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+*.apk
+*.aab
+*.unitypackage
+*.app
+# Unity regenerates these at the project root; the headless build lives in Headless/.
+/*.csproj
+/*.sln
+/*.slnx
+/*.user
+/*.userprefs
+
+# ---- IDEs ----
+.vs/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# ---- .NET headless build ----
+Headless/**/bin/
+Headless/**/obj/
+Tools/**/bin/
+Tools/**/obj/
+TestResults/
+
+# ---- Generated reports (re-created by the Balance Lab and gates) ----
+/artifacts/

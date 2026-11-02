@@ -1,0 +1,31 @@
+* text=auto eol=lf
+
+*.cs      text eol=lf diff=csharp
+*.swift   text eol=lf
+*.kt      text eol=lf
+*.json    text eol=lf
+*.md      text eol=lf
+*.asmdef  text eol=lf
+*.meta    text eol=lf
+*.py      text eol=lf
+*.sh      text eol=lf
+
+# Unity YAML: merge with UnityYAMLMerge when configured locally.
+*.unity   text eol=lf merge=unityyamlmerge
+*.prefab  text eol=lf merge=unityyamlmerge
+*.asset   text eol=lf merge=unityyamlmerge
+*.mat     text eol=lf merge=unityyamlmerge
+*.anim    text eol=lf merge=unityyamlmerge
+*.controller text eol=lf merge=unityyamlmerge
+
+# Binary
+*.png  binary
+*.jpg  binary
+*.psd  binary
+*.fbx  binary
+*.blend binary
+*.wav  binary
+*.ogg  binary
+*.ttf  binary
+*.otf  binary
+*.vdr  binary

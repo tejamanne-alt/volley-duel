@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.Sim", "Duel.Core.Sim\Duel.Core.Sim.csproj", "{D5010648-7C9F-43B8-ADBD-B9A3BFF3038B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.Tests", "Duel.Core.Tests\Duel.Core.Tests.csproj", "{C9372F93-A9D4-4AF7-9FEF-9EDFC9D1A970}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolleyDuel.Gates", "Gates\VolleyDuel.Gates.csproj", "{1720EDE9-2057-4D0F-B59B-46FFB95732DE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D5010648-7C9F-43B8-ADBD-B9A3BFF3038B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5010648-7C9F-43B8-ADBD-B9A3BFF3038B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5010648-7C9F-43B8-ADBD-B9A3BFF3038B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5010648-7C9F-43B8-ADBD-B9A3BFF3038B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9372F93-A9D4-4AF7-9FEF-9EDFC9D1A970}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9372F93-A9D4-4AF7-9FEF-9EDFC9D1A970}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9372F93-A9D4-4AF7-9FEF-9EDFC9D1A970}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9372F93-A9D4-4AF7-9FEF-9EDFC9D1A970}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1720EDE9-2057-4D0F-B59B-46FFB95732DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1720EDE9-2057-4D0F-B59B-46FFB95732DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1720EDE9-2057-4D0F-B59B-46FFB95732DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1720EDE9-2057-4D0F-B59B-46FFB95732DE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

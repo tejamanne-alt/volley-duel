@@ -1,0 +1,78 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,asmdef,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# Layout (Allman, Unity style). Block-scoped namespaces: Unity compiles C# 9.
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_after_cast = false
+csharp_preserve_single_line_statements = true
+csharp_preserve_single_line_blocks = true
+csharp_style_namespace_declarations = block_scoped:silent
+dotnet_sort_system_directives_first = true
+
+# Naming is reviewed by eye; analyzers below gate correctness.
+dotnet_style_qualification_for_field = false:silent
+csharp_style_var_for_built_in_types = true:silent
+csharp_style_var_when_type_is_apparent = true:silent
+
+# Analyzer severities for the headless build (TreatWarningsAsErrors is on).
+dotnet_diagnostic.CA1305.severity = none   # IFormatProvider: sim formats with invariant integer code
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA1307.severity = none
+dotnet_diagnostic.CA1822.severity = none   # mark members static: noisy for Unity components
+dotnet_diagnostic.CA1805.severity = none   # explicit default init is fine
+dotnet_diagnostic.CA1815.severity = none   # value types without Equals override are snapshots
+dotnet_diagnostic.CA1051.severity = none   # public fields on sim state structs are intentional
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1711.severity = none
+dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1720.severity = none
+dotnet_diagnostic.CA1724.severity = none
+dotnet_diagnostic.CA1000.severity = none
+dotnet_diagnostic.CA1062.severity = none
+dotnet_diagnostic.CA1303.severity = none
+dotnet_diagnostic.CA1814.severity = none
+dotnet_diagnostic.CA1819.severity = none
+dotnet_diagnostic.CA1002.severity = none
+dotnet_diagnostic.CA1028.severity = none
+dotnet_diagnostic.CA1008.severity = none
+dotnet_diagnostic.CA1027.severity = none
+dotnet_diagnostic.CA1031.severity = none
+dotnet_diagnostic.CA1034.severity = none
+dotnet_diagnostic.CA1063.severity = none
+dotnet_diagnostic.CA1065.severity = none
+dotnet_diagnostic.CA1066.severity = none
+dotnet_diagnostic.CA1067.severity = none
+dotnet_diagnostic.CA1069.severity = none
+dotnet_diagnostic.CA1508.severity = none
+dotnet_diagnostic.CA1812.severity = none
+dotnet_diagnostic.CA1823.severity = none
+dotnet_diagnostic.CA1852.severity = none
+dotnet_diagnostic.CA1859.severity = none
+dotnet_diagnostic.CA1860.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA2211.severity = none
+dotnet_diagnostic.CA2225.severity = none
+dotnet_diagnostic.CA2231.severity = none
+dotnet_diagnostic.CA5394.severity = none   # System.Random is banned from the sim by the static gate instead
+dotnet_diagnostic.IDE0005.severity = warning  # unused usings
