@@ -63,6 +63,7 @@ namespace VolleyDuel.AI
         int setKey = Never;
         int setChoice; // 0 high, 1 quick, 2 dump
         int attackKey = Never;
+        int anticipateKey = Never;
         int attackPress;
         bool attackDecided;
         int lastRecordedFlight = Never;
@@ -229,6 +230,7 @@ namespace VolleyDuel.AI
             }
             bool defending = VolleySim.IsDefending(seen, me);
             int touch = VolleySim.NextTouch(seen, me);
+            if (defending && defense != DefensePlan.Block) AnticipateDig(ref seen, next);
             if (touch >= 4) return; // a fourth touch is a fault; let it go
             if (m.Ring == RingKind.Bump && (touch == 1 || touch == 3))
             {
@@ -287,7 +289,7 @@ namespace VolleyDuel.AI
             Fix64 gap = Fix64.Abs(target - m.Pos.X);
             int framesLeft = m.RingCenter - next;
             Fix64 walk = def.WalkSpeed * T.Dt * (framesLeft > 0 ? framesLeft : 0);
-            bool needDive = gap > T.Reach.BumpReach + walk && gap <= T.Reach.BumpReach + def.DiveRange;
+            bool needDive = gap > def.DigReach + walk && gap <= def.DigReach + def.DiveRange;
             if (needDive && framesLeft <= 14)
             {
                 // Commit to the dive: stick toward the ball with the press.
@@ -431,13 +433,18 @@ namespace VolleyDuel.AI
         {
             FighterState m = seen.FighterAt(me);
             if (VolleySim.IsBlockJump(m.Jump) || m.Jump == JumpKind.FakeHop) return;
-            if (m.Ring != RingKind.Spike && m.Ring != RingKind.Serve) return;
-            if (attackKey != m.RingCenter)
+            if (m.SwungThisJump) return;
+            // The CPU times its own swing off the flight it can see (extrapolated to now) and its own body,
+            // not the HUD ring, which it would only notice a reaction delay late.
+            if (!sim.PredictSpikeContact(ref seen, me, out int contactFrame, out FixVec2 contactPoint)) return;
+            m.RingCenter = contactFrame;
+            m.RingPoint = contactPoint;
+            if (attackKey == Never || contactFrame - attackKey > 2 || attackKey - contactFrame > 2)
             {
-                attackKey = m.RingCenter;
+                attackKey = contactFrame;
                 attackDecided = false;
                 ringNoise = rng.Gaussian(Tier.ExecutionSigma).RoundToInt();
-                int press = m.RingCenter + ringNoise;
+                int press = contactFrame + ringNoise;
                 if (press < next) press = next;
                 attackPress = press;
                 if (m.Jump == JumpKind.JumpServe)
@@ -467,7 +474,7 @@ namespace VolleyDuel.AI
             hitRelease = attackPress + 12;
             aimStick = choice == AttackChoice.Roll ? -FrameInput.StickMax : FrameInput.StickMax / 2;
             aimFrom = attackPress - 2;
-            aimUntil = m.RingCenter + T.Rings.LockFrames + 2;
+            aimUntil = contactFrame + T.Rings.LockFrames + 2;
         }
 
         void SwingSpike(int next, int release, int aim)
@@ -560,6 +567,27 @@ namespace VolleyDuel.AI
                     if (next >= m.BlockRingCenter - K.StanceLead && Fix64.Abs(m.Pos.X - moveX) <= K.ArriveTolerance * 2) stance = true;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Hard spikes arrive faster than any reaction, so defenders read the swing: from the hitter's visible
+        /// jump and known spike speed, estimate when a spike at us would arrive and pre-time the dig.
+        /// If the attack is a tip or goes elsewhere the early press simply expires.
+        /// </summary>
+        void AnticipateDig(ref GameState seen, int next)
+        {
+            FighterState o = seen.FighterAt(opp);
+            if (o.Action != FighterAction.Airborne || VolleySim.IsBlockJump(o.Jump) || o.Jump == JumpKind.FakeHop) return;
+            if (seen.Ball.Mode != BallMode.Flight || VolleySim.SideOf(seen.Ball.Pos.X) != opp) return;
+            if (!sim.PredictSpikeContact(ref seen, opp, out int contact, out FixVec2 point)) return;
+            if (anticipateKey == contact) return;
+            anticipateKey = contact;
+            FighterState m = seen.FighterAt(me);
+            FighterDefinition od = sim.Def(opp);
+            Fix64 travel = Fix64.Abs(m.Pos.X - point.X) + Fix64.One;
+            int frames = (travel / od.SpikeSpeed / T.Dt).RoundToInt();
+            int press = contact + frames + rng.Gaussian(Tier.ExecutionSigma * K.AnticipationScale).RoundToInt();
+            if (press > next && hitPress < next) hitPress = press;
         }
 
         Fix64 DigDepthFor(ref GameState seen)

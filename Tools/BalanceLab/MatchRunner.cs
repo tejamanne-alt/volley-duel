@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Duel.Core.AI;
 using Duel.Core.Sim;
@@ -16,6 +17,12 @@ namespace VolleyDuel.BalanceLab
         public readonly int[] FaultKinds = new int[8];
         public readonly int[] TouchKinds = new int[20];
         public readonly int[] PointReasons = new int[16];
+        /// <summary>Points won per player (0/1) by reason: index player * 16 + reason.</summary>
+        public readonly int[] WonBy = new int[32];
+        /// <summary>Points lost per player to their own errors/faults: index player.</summary>
+        public readonly int[] LostToOwnError = new int[2];
+        /// <summary>Own errors per player by the touch that caused them: index player * 20 + TouchKind, +1 when out.</summary>
+        public readonly int[] ErrorTouch = new int[80];
 
         public void Add(MatchStats o)
         {
@@ -29,6 +36,10 @@ namespace VolleyDuel.BalanceLab
             for (int i = 0; i < FaultKinds.Length; i++) FaultKinds[i] += o.FaultKinds[i];
             for (int i = 0; i < TouchKinds.Length; i++) TouchKinds[i] += o.TouchKinds[i];
             for (int i = 0; i < PointReasons.Length; i++) PointReasons[i] += o.PointReasons[i];
+            for (int i = 0; i < ErrorTouch.Length; i++) ErrorTouch[i] += o.ErrorTouch[i];
+            for (int i = 0; i < WonBy.Length; i++) WonBy[i] += o.WonBy[i];
+            LostToOwnError[0] += o.LostToOwnError[0];
+            LostToOwnError[1] += o.LostToOwnError[1];
         }
 
         public double ReceiverRate => Rallies == 0 ? 0 : (double)ReceiverWins / Rallies;
@@ -109,6 +120,16 @@ namespace VolleyDuel.BalanceLab
                         case VolleyEvent.Point:
                             stats.Rallies++;
                             stats.PointReasons[ev.A]++;
+                            if (ev.Actor <= 1)
+                            {
+                                stats.WonBy[ev.Actor * 16 + ev.A]++;
+                                if (ev.A == (int)PointReason.Error || ev.A == (int)PointReason.Fault)
+                                {
+                                    stats.LostToOwnError[1 - ev.Actor]++;
+                                    bool outBall = Math.Abs(state.Ball.Pos.X.RoundToInt()) >= 6;
+                                    stats.ErrorTouch[(1 - ev.Actor) * 40 + (int)state.LastTouch * 2 + (outBall ? 1 : 0)]++;
+                                }
+                            }
                             int len = state.World - rallyStart;
                             stats.RallyFrames += len;
                             if (len > stats.LongestRally) stats.LongestRally = len;

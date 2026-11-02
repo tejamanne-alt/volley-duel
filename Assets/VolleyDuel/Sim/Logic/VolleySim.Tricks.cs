@@ -177,7 +177,7 @@ namespace VolleyDuel.Sim
             if (framesLeft < 0) framesLeft = 0;
             Fix64 range = f.Gassed ? t.Range * T.Meters.GassedDiveScale : t.Range;
             Fix64 cover = T.Dive.Speed * 2 * T.Dt * framesLeft;
-            if (dist > T.Reach.BumpReach + range || dist - T.Reach.BumpReach > cover) return false;
+            if (dist > Def(i).DigReach + range || dist - Def(i).DigReach > cover) return false;
             bool amped = BeginTrick(ref s, i, TrickKind.Sweep, wantAmp);
             BeginCommit(ref s, i, NextTouch(s, i) == 3 ? TouchKind.Save : TouchKind.Bump, press, grade);
             ref FighterState g = ref GameState.Fighter(ref s, i);

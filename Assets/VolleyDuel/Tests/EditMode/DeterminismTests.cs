@@ -262,3 +262,42 @@ namespace VolleyDuel.Tests
         }
     }
 }
+
+namespace VolleyDuel.Tests
+{
+    public class RivalModeTests
+    {
+        [Test]
+        public void RivalTightensWhenThePlayerWinsAndEasesWhenTheyLose()
+        {
+            var cpu = new CpuTables(Rig.LoadTables());
+            var rival = new RivalMode(cpu, 2);
+            Fix64 start = rival.Skill;
+            rival.AfterSet(4);
+            Assert.Greater(rival.Skill, start, "player won the set: the CPU gets sharper");
+            int fasterReaction = rival.Current.ReactionFrames;
+            rival.AfterSet(-4);
+            rival.AfterSet(-4);
+            Assert.Less(rival.Skill, start, "player lost: the CPU eases off");
+            Assert.Greater(rival.Current.ReactionFrames, fasterReaction);
+        }
+
+        [Test]
+        public void CpuTiersFollowTheSpecTable()
+        {
+            var cpu = new CpuTables(Rig.LoadTables());
+            int[] reaction = { 30, 24, 18, 14, 12 };
+            string[] read = { "1.20", "0.80", "0.50", "0.30", "0.15" };
+            string[] readsYou = { "0.15", "0.30", "0.45", "0.60", "0.70" };
+            bool[] learns = { false, false, true, true, true };
+            for (int i = 0; i < 5; i++)
+            {
+                Assert.AreEqual(reaction[i], cpu.Tiers[i].ReactionFrames, cpu.Tiers[i].Name);
+                Assert.AreEqual(read[i], cpu.Tiers[i].LandingReadError.ToString(2));
+                Assert.AreEqual(readsYou[i], cpu.Tiers[i].ReadsYou.ToString(2));
+                Assert.AreEqual(learns[i], cpu.Tiers[i].LearnsHabits);
+            }
+            Assert.GreaterOrEqual(cpu.Tiers[4].ReactionFrames, 12, "Legend never reacts faster than 12 frames");
+        }
+    }
+}

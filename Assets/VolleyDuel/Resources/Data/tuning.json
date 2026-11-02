@@ -18,8 +18,8 @@
     "netCordOverChance": "0.5",
     "floorRestitution": "0.45",
     "floatWobbleNudges": 3,
-    "floatWobbleFirstFrame": 14,
-    "floatWobbleInterval": 10,
+    "floatWobbleFirstFrame": 30,
+    "floatWobbleInterval": 8,
     "floatWobbleMax": "0.9",      // m/s added to the float serve's horizontal speed per nudge, from the match RNG
     "topspinDipGravity": "3.5",   // extra downward acceleration after a topspin serve crosses the net
     "predictionHorizon": 240
@@ -51,7 +51,7 @@
     "controlled": "0.85",         // spec bands
     "loose": "0.55",
     "shank": "0.30",
-    "looseAimError": "1.6",       // meters of aim error at Q = 0.55, shrinking to 0 at 0.85
+    "looseAimError": "1.3",       // meters of aim error at Q = 0.55, shrinking to 0 at 0.85
     "looseHeightError": "0.9",
     "shankSpeedMin": "5",
     "shankSpeedMax": "12",
@@ -83,7 +83,8 @@
     "handForward": "0.28",
     "spikeReachRadius": "0.55",
     "bumpHeight": "0.8",
-    "bumpReach": "0.8",
+    "bumpReach": "1.2",           // at Dig 5; each Dig point adds bumpReachPerDig
+    "bumpReachPerDig": "0.1",
     "setHeightAboveHead": "0.15",
     "setReach": "0.6",
     "minContactHeight": "0.2",
@@ -127,7 +128,7 @@
     "rollSpeed": "8.5",
     "shortFromNet": "1.8",
     "midFromNet": "3.6",
-    "deepFromNet": "5.6",
+    "deepFromNet": "5.2",
     "tipFromNet": "1.3",
     "rollFromNet": "5.3",
     "tipLift": "0.9",             // a tip arcs this high above the net before dropping
@@ -194,6 +195,7 @@
     "costJumpServe": "20",
     "costBite": "15",
     "refillPerSecond": "20",      // spec
+    "idleSpeed": "0.5",           // "grounded and idle": moving slower than this counts as standing
     "refillDeadBall": "40",       // spec
     "gassedRecoverAt": "30",      // spec
     "gassedJumpScale": "0.75",    // spec: jump height -25%

@@ -155,3 +155,27 @@ The setter is the hitter, so passes go to 1.1 m off the net and sets travel litt
 to 0.6 m, high sets to 0.9 m. Hitting from further back makes straight spikes into mid-court
 impossible (the ball cannot clear the net and still drop in), which is realistic but made rallies
 degenerate in the Balance Lab.
+
+## CPU and balance
+
+### C1. The CPU times its own swing from the visible flight, not the HUD ring
+The CPU sees every ring through its reaction delay. On quick sets the spike contact comes less
+than 12 frames after take-off, so a ring-driven CPU always swung late and shanked. A player
+does not need the HUD ring to swing at a ball they set themselves; the CPU now predicts its own
+contact from the ball as it sees it (extrapolated to now) and its own body.
+
+### C2. Defenders anticipate hard spikes from the hitter's swing
+Spikes reach the defender 8–18 frames after contact, below the 12-frame Legend reaction floor,
+so no ring-reacting defender could ever dig one. The CPU now reads the visible jump and swing,
+estimates when a spike at it would arrive, and pre-times the dig with 2.5× its execution noise
+(cpu.json `anticipationScale`). Tips and shots elsewhere let the early press expire.
+
+### C3. Balance status (P3 gate) — not yet passing **review**
+- Options considered: tune attributes within the 36-point budget; tune derived constants (dig
+  reach per Dig point, spike speeds); tune CPU personalities. Applied: dig reach 1.2 m + 0.1 per
+  Dig point; Rafa Stamina cost ×1.6; aim fixes. Kept the spec's spike speeds (17 + 1 per Power).
+- Finding: with near-perfect Legend execution the CPU rarely errs, so power kills decide
+  matches and the defensive specialist (Rin) cannot win by outlasting. Arjun's Sleight (late
+  choice lock) is a human-reading weapon the CPU barely exploits. Both are cases where CPU play is
+  a weak proxy, as the spec warns; the next lever is human playtests plus CPU defensive reads.
+- Latest gate run (200 matches per pairing, Legend): see SPIKES.md.

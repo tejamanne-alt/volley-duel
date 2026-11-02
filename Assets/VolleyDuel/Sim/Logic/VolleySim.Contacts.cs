@@ -35,7 +35,7 @@ namespace VolleyDuel.Sim
                 else
                 {
                     // A late press connects at once, so the ball must be within reach right now.
-                    Fix64 reach = previous == RingKind.Set ? T.Reach.SetReach : T.Reach.BumpReach;
+                    Fix64 reach = previous == RingKind.Set ? T.Reach.SetReach : Def(i).DigReach;
                     f.RingReachable = Fix64.Abs(s.Ball.Pos.X - f.Pos.X) <= reach && s.Ball.Pos.Y >= T.Reach.MinContactHeight;
                 }
                 return;
@@ -68,7 +68,7 @@ namespace VolleyDuel.Sim
             FighterDefinition d = Def(i);
             int touch = NextTouch(s, i);
             RingKind kind = RingKind.Bump;
-            Fix64 reach = T.Reach.BumpReach;
+            Fix64 reach = d.DigReach;
             int frame;
             FixVec2 point;
             Fix64 speed;
@@ -80,7 +80,7 @@ namespace VolleyDuel.Sim
                 found = PredictDescent(ref s, d.Height + T.Reach.SetHeightAboveHead, i, out frame, out point, out speed);
                 if (!found)
                 {
-                    reach = T.Reach.BumpReach;
+                    reach = d.DigReach;
                     found = PredictDescent(ref s, T.Reach.BumpHeight, i, out frame, out point, out speed);
                 }
             }
@@ -513,7 +513,7 @@ namespace VolleyDuel.Sim
                     // A late setter still gets to the ball, low off the forearms if need be (see ResolveTouch).
                     return Fix64.Abs(ball.X - f.Pos.X) <= T.Reach.SetReach + slack && ball.Y >= T.Reach.MinContactHeight && ball.Y <= d.StandingReach + Fix64.One;
                 default:
-                    return Fix64.Abs(ball.X - f.Pos.X) <= T.Reach.BumpReach + slack && ball.Y >= T.Reach.MinContactHeight && ball.Y <= d.Height + Fix64.Half;
+                    return Fix64.Abs(ball.X - f.Pos.X) <= d.DigReach + slack && ball.Y >= T.Reach.MinContactHeight && ball.Y <= d.Height + Fix64.Half;
             }
         }
 
@@ -588,7 +588,7 @@ namespace VolleyDuel.Sim
                 // Nothing Drops: one floor save per rally on any ball inside her dive range.
                 Fix64 gap = Fix64.Abs(s.Ball.Pos.X - f.Pos.X);
                 bool rescue = diving && d.GuaranteedFloorSave && !f.FloorSaveUsed && s.Ball.Pos.Y >= T.Reach.MinContactHeight &&
-                    gap <= T.Reach.BumpReach + DiveRange(ref s, i) + (f.ActiveTrick == TrickKind.Sweep ? d.Defense.Range : Fix64.Zero);
+                    gap <= d.DigReach + DiveRange(ref s, i) + (f.ActiveTrick == TrickKind.Sweep ? d.Defense.Range : Fix64.Zero);
                 if (!rescue)
                 {
                     Emit(VolleyEvent.Whiff, i, (int)kind, 0, f.Pos.X, f.Pos.Y);
@@ -976,17 +976,16 @@ namespace VolleyDuel.Sim
         {
             Fix64 g = T.Ball.Gravity;
             Fix64 minHeight = T.Court.NetHeight + T.Court.BallRadius + clearance;
+            // Never aim past the end line: errors are applied before this, so a wild aim can still go out.
+            Fix64 deepest = T.Court.HalfLength - Fix64.FromRatio(2, 10);
+            if (Fix64.Abs(target.X) > deepest && SideOf(target.X) != SideOf(from.X) && Fix64.Abs(target.X) <= T.Court.HalfLength) target.X = IntoOpponent(i, deepest);
+            // 1. The fast, flat arc at the swing's speed.
             if (Ballistics.SolveSpeed(from, target, speed, g, true, out FixVec2 v) && ClearsNet(from, v, minHeight)) return v;
+            // 2. Too low to drive it straight: the arc through the clearance point that still lands on target (slower).
             var via = new FixVec2(Fix64.Zero, minHeight);
-            // Push the target deeper until a clean arc exists (contact far from the net or too low).
-            for (int k = 0; k < 8; k++)
-            {
-                if (Fix64.Abs(target.X) > Fix64.Abs(from.X) || SideOf(target.X) != SideOf(from.X))
-                {
-                    if (Ballistics.SolveThrough(from, via, target, g, out v)) return v;
-                }
-                target.X += Fix64.Half * Dir(i);
-            }
+            if (SideOf(target.X) != SideOf(from.X) && Ballistics.SolveThrough(from, via, target, g, out v)) return v;
+            // 3. Too slow to reach: lob it at the same speed, else a plain arc over the net.
+            if (Ballistics.SolveSpeed(from, target, speed, g, false, out v) && ClearsNet(from, v, minHeight)) return v;
             Ballistics.SolveApex(from, Fix64.Max(from.Y, minHeight) + Fix64.Half, target, g, out v);
             return v;
         }

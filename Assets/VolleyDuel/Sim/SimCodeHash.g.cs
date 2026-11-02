@@ -4,6 +4,6 @@ namespace VolleyDuel.Sim
     /// <summary>Fingerprint of the deterministic sim sources (Duel.Core.Sim + VolleyDuel.Sim).</summary>
     public static class SimCodeHash
     {
-        public const ulong Value = 0xFD5BFD67FB618277UL;
+        public const ulong Value = 0x3EECEA54C1BECD7DUL;
     }
 }

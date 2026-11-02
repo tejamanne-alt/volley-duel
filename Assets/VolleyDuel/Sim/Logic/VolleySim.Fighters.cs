@@ -53,6 +53,7 @@ namespace VolleyDuel.Sim
                     break;
             }
 
+            // Spec: Stamina refills while grounded and idle (free to act), plus 40 at each dead ball.
             if (f.Action == FighterAction.Neutral || f.Action == FighterAction.DigStance || f.Action == FighterAction.ServeHold)
             {
                 RefillStamina(ref s, i, T.Meters.RefillPerFrame);

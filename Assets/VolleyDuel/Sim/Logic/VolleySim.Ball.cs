@@ -19,8 +19,9 @@ namespace VolleyDuel.Sim
         /// </summary>
         public NetResult IntegrateBall(ref BallState b, int world)
         {
-            if (b.Spin == BallSpin.Float)
+            if (b.Spin == BallSpin.Float && b.CrossedNet)
             {
+                // The float serve dances on the receiver's side only.
                 int age = world - b.FlightStart - T.Ball.FloatWobbleFirstFrame;
                 if (age >= 0 && age % T.Ball.FloatWobbleInterval == 0)
                 {

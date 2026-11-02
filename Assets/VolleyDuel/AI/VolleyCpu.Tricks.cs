@@ -69,7 +69,7 @@ namespace VolleyDuel.AI
             FighterState m = seen.FighterAt(me);
             TrickKind kind = TrickKind.None;
             if (def.Has(TrickKind.PipeShot) && Fix64.Abs(m.Pos.X) >= def.Trick(TrickKind.PipeShot).MinFromNet) kind = TrickKind.PipeShot;
-            else if (def.Has(TrickKind.OverpassHammer) && sim.IsOverpassChance(seen, me, m.RingPoint.X)) kind = TrickKind.OverpassHammer;
+            else if (def.Has(TrickKind.OverpassHammer) && sim.PredictSpikeContact(ref seen, me, out int cf, out FixVec2 cp) && sim.IsOverpassChance(seen, me, cp.X)) kind = TrickKind.OverpassHammer;
             else if (def.Has(TrickKind.KalariTwist) && rng.Chance(persona.Trick)) kind = TrickKind.KalariTwist;
             if (kind == TrickKind.None) return false;
             trickPress = press;

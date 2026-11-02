@@ -213,7 +213,7 @@ namespace VolleyDuel.Sim
     public sealed class ReachTuning
     {
         public readonly Fix64 StandingReachRatio, HandForward, SpikeReachRadius, BumpHeight, BumpReach, SetHeightAboveHead, SetReach,
-            MinContactHeight, BodyHalfWidth, CommitStepSpeed, NetReachOver;
+            MinContactHeight, BodyHalfWidth, CommitStepSpeed, NetReachOver, BumpReachPerDig;
         public readonly int TouchRecovery;
 
         public ReachTuning(JsonNode j)
@@ -230,6 +230,7 @@ namespace VolleyDuel.Sim
             CommitStepSpeed = j.Fix("commitStepSpeed");
             TouchRecovery = j.Int("touchRecovery");
             NetReachOver = j.Fix("netReachOver");
+            BumpReachPerDig = j.Fix("bumpReachPerDig");
         }
     }
 
@@ -374,7 +375,7 @@ namespace VolleyDuel.Sim
         public readonly int SurgeMax, SurgeBar, GainKill, GainAce, GainStuff, GainPerfectDig, GainFloorSave, GainReadTip, GainJoust,
             GainBiteDrawn, GainScoredOn, CostAmped, CostDenial, CostFinisher;
         public readonly Fix64 SimpleSurgeScale, StaminaMax, CostJump, CostDive, CostJumpServe, CostBite, RefillPerSecond, RefillDeadBall,
-            GassedRecoverAt, GassedJumpScale, GassedDiveScale, RefillPerFrame;
+            GassedRecoverAt, GassedJumpScale, GassedDiveScale, RefillPerFrame, IdleSpeed;
 
         public MeterTuning(JsonNode j)
         {
@@ -404,6 +405,7 @@ namespace VolleyDuel.Sim
             GassedJumpScale = j.Fix("gassedJumpScale");
             GassedDiveScale = j.Fix("gassedDiveScale");
             RefillPerFrame = RefillPerSecond / 60;
+            IdleSpeed = j.Fix("idleSpeed");
         }
     }
 

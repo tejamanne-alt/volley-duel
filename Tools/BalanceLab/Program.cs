@@ -104,6 +104,10 @@ namespace VolleyDuel.BalanceLab
             }
             var results = new PairResult[pairs.Count];
             var total = new MatchStats();
+            var perFighter = new int[n * 16];
+            var perFighterErrors = new int[n];
+            var perFighterPoints = new int[n];
+            var perFighterErrorTouch = new int[n * 40];
             var sw = Stopwatch.StartNew();
             var lockObj = new object();
             for (int p = 0; p < pairs.Count; p++)
@@ -130,6 +134,17 @@ namespace VolleyDuel.BalanceLab
                     {
                         pairStats.Add(s);
                         if (aWon) winsA++;
+                        int[] who = { setup.Fighter0, setup.Fighter1 };
+                        for (int pl = 0; pl < 2; pl++)
+                        {
+                            for (int r = 0; r < 16; r++)
+                            {
+                                perFighter[who[pl] * 16 + r] += s.WonBy[pl * 16 + r];
+                                perFighterPoints[who[pl]] += s.WonBy[pl * 16 + r];
+                            }
+                            perFighterErrors[who[pl]] += s.LostToOwnError[pl];
+                            for (int e = 0; e < 40; e++) perFighterErrorTouch[who[pl] * 40 + e] += s.ErrorTouch[pl * 40 + e];
+                        }
                     }
                 });
                 results[p] = new PairResult { A = a, B = b, Stats = pairStats, WinRateA = (double)winsA / matches };
@@ -139,6 +154,27 @@ namespace VolleyDuel.BalanceLab
             }
             sw.Stop();
             Console.WriteLine();
+            Console.WriteLine("per fighter (share of points won by reason; own errors given away):");
+            for (int f = 0; f < n; f++)
+            {
+                int pts = Math.Max(1, perFighterPoints[f]);
+                Console.WriteLine("  {0,-6} kill {1,5:P0} ace {2,5:P0} stuff {3,5:P0} tooled {4,5:P0} finisher {5,5:P0} opp-error {6,5:P0} | own errors {7}",
+                    tables.Fighters[f].ShortName, (double)perFighter[f * 16 + (int)PointReason.Kill] / pts, (double)perFighter[f * 16 + (int)PointReason.Ace] / pts,
+                    (double)perFighter[f * 16 + (int)PointReason.Stuff] / pts, (double)perFighter[f * 16 + (int)PointReason.Tooled] / pts,
+                    (double)perFighter[f * 16 + (int)PointReason.Finisher] / pts, (double)(perFighter[f * 16 + (int)PointReason.Error] + perFighter[f * 16 + (int)PointReason.Fault]) / pts,
+                    perFighterErrors[f]);
+            }
+            Console.WriteLine("own errors by last touch (in/out):");
+            for (int f = 0; f < n; f++)
+            {
+                var line = new System.Text.StringBuilder("  " + tables.Fighters[f].ShortName.PadRight(6));
+                for (int k = 0; k < 20; k++)
+                {
+                    int inside = perFighterErrorTouch[f * 40 + k * 2], outside = perFighterErrorTouch[f * 40 + k * 2 + 1];
+                    if (inside + outside > 0) line.Append(' ').Append((TouchKind)k).Append(' ').Append(inside).Append('/').Append(outside);
+                }
+                Console.WriteLine(line.ToString());
+            }
             Console.Write(total.Summary());
             Console.WriteLine("elapsed {0:F1} s for {1} matches", sw.Elapsed.TotalSeconds, matches * pairs.Count);
             Report.Write(tables, results, total, tier.Name, matches);

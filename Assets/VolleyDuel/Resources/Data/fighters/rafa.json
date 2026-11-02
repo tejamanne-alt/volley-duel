@@ -17,7 +17,7 @@
     "chargeFrames": 8,            // spec: full power in 8 frames instead of 12
     // Weakness: slowest landing recovery, weakest touch, hungriest Stamina.
     "landingRecoveryExtra": 4,
-    "staminaCostScale": "1.3"
+    "staminaCostScale": "1.6"
   },
   "tricks": {
     "offenseA": {

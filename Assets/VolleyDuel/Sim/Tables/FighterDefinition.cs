@@ -18,7 +18,7 @@ namespace VolleyDuel.Sim
         public readonly int ChargeFrames, LandingRecoveryExtra, DigPerfectBonus, LateLockExtra;
 
         // Derived physical values.
-        public readonly Fix64 StandingReach, JumpHeight, BlockJumpHeight, WalkSpeed, DiveRange, SpikeSpeed, FloatServeSpeed, JumpServeSpeed;
+        public readonly Fix64 StandingReach, JumpHeight, BlockJumpHeight, WalkSpeed, DiveRange, SpikeSpeed, FloatServeSpeed, JumpServeSpeed, DigReach;
         public readonly int PerfectDig, GoodDig, PerfectControl, GoodControl, PerfectPower, GoodPower, BlockPerfectHalf, BlockGoodHalf;
 
         public readonly TrickDefinition OffenseA, OffenseB, Defense;
@@ -66,6 +66,8 @@ namespace VolleyDuel.Sim
             BlockJumpHeight = JumpHeight * t.Jump.BlockHeightScale;
             WalkSpeed = t.Movement.WalkSpeedBase + t.Movement.WalkSpeedPerPoint * (Speed - 5);
             DiveRange = t.Dive.RangeBase + t.Dive.RangePerDigPoint * (Dig - 5);
+            // Dig sets the dig ring and how far the platform reaches.
+            DigReach = t.Reach.BumpReach + t.Reach.BumpReachPerDig * (Dig - 5);
             SpikeSpeed = t.Attack.SpikeBaseSpeed + t.Attack.SpikeSpeedPerPower * (Power - 5);
             FloatServeSpeed = t.Serve.FloatSpeedBase + t.Serve.FloatSpeedPerPower * (Power - 5);
             JumpServeSpeed = t.Serve.JumpSpeedBase + t.Serve.JumpSpeedPerPower * (Power - 5);

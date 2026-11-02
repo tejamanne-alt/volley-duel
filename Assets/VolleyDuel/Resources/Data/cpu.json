@@ -31,6 +31,7 @@
     "stanceLead": 18,
     "tempoVariation": 3,          // frames a hitter varies its approach so blocks are a timing battle
     "blockTimingScale": "2",      // block timing is read off the hitter, so it is noisier than a bump
-    "denialTimingScale": "6"    // denying a cinematic is harder than bumping a ball (spec: Finishers land 75-80%)
+    "denialTimingScale": "6",
+    "anticipationScale": "2.5"    // reading a swing is rougher than reacting to a ring    // denying a cinematic is harder than bumping a ball (spec: Finishers land 75-80%)
   }
 }
