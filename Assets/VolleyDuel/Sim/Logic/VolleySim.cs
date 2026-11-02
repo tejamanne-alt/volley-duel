@@ -77,7 +77,6 @@ namespace VolleyDuel.Sim
                 BlockRingCenter = int.MinValue / 2,
                 BlockRingReveal = int.MaxValue / 2,
                 PerfectDigFrame = int.MinValue / 2,
-                KnockbackUntil = int.MinValue / 2,
             };
             f.Pos = new FixVec2(FromNet(player, T.Flow.ReceiveFromNet), Fix64.Zero);
             return f;
@@ -254,7 +253,7 @@ namespace VolleyDuel.Sim
             f.LandInDigStance = false;
             f.BlockedLast = false;
             f.PerfectDigFrame = int.MinValue / 2;
-            f.KnockbackUntil = int.MinValue / 2;
+            f.PendingKnockback = 0;
             f.BlockRingCenter = int.MinValue / 2;
             f.BlockRingReveal = int.MaxValue / 2;
             f.Ring = RingKind.None;

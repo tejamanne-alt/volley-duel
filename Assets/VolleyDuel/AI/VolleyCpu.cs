@@ -58,6 +58,8 @@ namespace VolleyDuel.AI
         int jumpKey = Never;
         int jumpFrame;
         Fix64 takeoffX;
+        bool useSlide;
+        int slideFrame;
         int setKey = Never;
         int setChoice; // 0 high, 1 quick, 2 dump
         int attackKey = Never;
@@ -213,6 +215,7 @@ namespace VolleyDuel.AI
         void ThinkRally(ref GameState seen, int next)
         {
             FighterState m = seen.FighterAt(me);
+            if (m.Action != FighterAction.Airborne && TryFinisherNow(seen, next)) return;
             if (m.Action == FighterAction.ServeToss)
             {
                 PressOnRing(ref seen, next, InputButtons.Hit, ServeAim());
@@ -296,6 +299,12 @@ namespace VolleyDuel.AI
             {
                 stance = true;
             }
+            if (ringKey != m.RingCenter && TryDigTrick(ref seen, next, needDive))
+            {
+                ringKey = m.RingCenter;
+                if (needDive) aimUntil = trickPress + 2;
+                return;
+            }
             PressOnRing(ref seen, next, InputButtons.Hit, needDive ? aimStick : 0);
             if (needDive && hitPress != Never) aimUntil = hitPress + 2;
         }
@@ -331,6 +340,11 @@ namespace VolleyDuel.AI
                 if (rng.Chance(dumpChance)) setChoice = 2;
                 else setChoice = rng.Chance(quickChance) ? 1 : 0;
             }
+            if (setChoice != 2 && ringKey != m.RingCenter && TrySetTrick(ref seen, next))
+            {
+                ringKey = m.RingCenter;
+                return;
+            }
             if (setChoice == 2) PressOnRing(ref seen, next, InputButtons.Feint, 0);
             else PressOnRing(ref seen, next, InputButtons.Hit, setChoice == 1 ? FrameInput.StickMax : 0);
         }
@@ -350,10 +364,26 @@ namespace VolleyDuel.AI
                 }
                 // Hitters vary their tempo a little so the block has to read them (timing battle).
                 jumpFrame += rng.Gaussian(Tier.ExecutionSigma).RoundToInt() + rng.Range(-K.TempoVariation, K.TempoVariation + 1);
+                useSlide = def.Has(TrickKind.Slide) && rng.Chance(persona.Trick);
+                if (useSlide)
+                {
+                    TrickDefinition slide = def.Trick(TrickKind.Slide);
+                    slideFrame = jumpFrame - (slide.Startup - T.Jump.StartupFrames);
+                    takeoffX = sim.ClampGrounded(me, takeoffX - slide.Drift * VolleySim.Dir(me) / 2);
+                }
             }
             if (jumpFrame == Never) return false;
             if (next > jumpFrame + T.Rings.BufferFrames && m.Action != FighterAction.JumpStartup) return false; // missed it: fall back
             MoveTo(takeoffX);
+            if (useSlide)
+            {
+                if (next >= slideFrame && trickPress < slideFrame)
+                {
+                    trickPress = next;
+                    trickAmp = WantAmp(seen);
+                }
+                return true;
+            }
             if (next >= jumpFrame && jumpPress < jumpFrame) jumpPress = next;
             return true;
         }
@@ -569,7 +599,7 @@ namespace VolleyDuel.AI
                     defense = DefensePlan.Dig;
                     return;
                 }
-                if (defense == DefensePlan.Block && TryDefenseTrick(ref seen, next, press)) return;
+                if ((defense == DefensePlan.Block || (defense == DefensePlan.FakeBlock && def.Has(TrickKind.Decoy))) && TryDefenseTrick(ref seen, next, press)) return;
                 if (defense == DefensePlan.Block) jumpPress = press < next ? next : press;
                 else feintPress = press < next ? next : press;
             }

@@ -31,7 +31,7 @@ namespace VolleyDuel.AI
 
     public sealed class SkillTuning
     {
-        public readonly Fix64 ArriveTolerance, StickGain, BaseDefenseDepth, BlockSpot, ShortDigDepth, DeepDigDepth, JumpServeBackoff, BlockTimingScale;
+        public readonly Fix64 ArriveTolerance, StickGain, BaseDefenseDepth, BlockSpot, ShortDigDepth, DeepDigDepth, JumpServeBackoff, BlockTimingScale, DenialTimingScale;
         public readonly int ServeDelayMin, ServeDelayMax, StanceLead, TempoVariation;
 
         public SkillTuning(JsonNode j)
@@ -48,6 +48,7 @@ namespace VolleyDuel.AI
             StanceLead = j.Int("stanceLead");
             TempoVariation = j.Int("tempoVariation");
             BlockTimingScale = j.Fix("blockTimingScale");
+            DenialTimingScale = j.Fix("denialTimingScale");
         }
     }
 

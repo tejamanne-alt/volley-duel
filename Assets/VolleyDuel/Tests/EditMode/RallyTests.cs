@@ -5,7 +5,7 @@ using VolleyDuel.Sim;
 namespace VolleyDuel.Tests
 {
     /// <summary>Shared scenario builders for touches and the Read.</summary>
-    static class Scenarios
+    public static class Scenarios
     {
         /// <summary>Ball dropping straight onto the floor at <paramref name="x"/>, last played by <paramref name="lastToucher"/>.</summary>
         public static Rig DropOnFloor(string x, int lastToucher, TouchKind lastTouch = TouchKind.Spike, string f0 = "rafa", string f1 = "rafa")
@@ -23,17 +23,17 @@ namespace VolleyDuel.Tests
         /// A set ball falling onto <paramref name="attacker"/>'s side, the attacker standing at the takeoff spot with a
         /// jump and swing scheduled so the swing meets the ball. Returns the planned contact frame.
         /// </summary>
-        public static int SetUpSpike(Rig rig, int attacker, out int jumpFrame)
+        public static int SetUpSpike(Rig rig, int attacker, out int jumpFrame, string fromNet = "0.8", string height = "4.6")
         {
-            Fix64 ballX = VolleySim.FromNet(attacker, Fix64.Parse("0.8"));
-            rig.InRally(new FixVec2(ballX, Fix64.Parse("4.6")), FixVec2.Zero, attacker, TouchKind.Set, attacker, 2, BallFlags.HighSet);
+            Fix64 ballX = VolleySim.FromNet(attacker, Fix64.Parse(fromNet));
+            rig.InRally(new FixVec2(ballX, Fix64.Parse(height)), FixVec2.Zero, attacker, TouchKind.Set, attacker, 2, BallFlags.HighSet);
             Fix64 takeoff = ballX - rig.T.Reach.HandForward * VolleySim.Dir(attacker);
             rig.Place(attacker, takeoff);
             rig.Place(1 - attacker, VolleySim.FromNet(1 - attacker, Fix64.Parse("4.5")));
             jumpFrame = 0;
             int contact = 0;
             Fix64 best = Fix64.MaxValue;
-            for (int j = rig.S.World + 2; j < rig.S.World + 40; j++)
+            for (int j = rig.S.World + 2; j < rig.S.World + 80; j++)
             {
                 if (rig.Sim.PlanJumpContact(rig.S, attacker, j, takeoff, out int cf, out FixVec2 cp, out Fix64 d2) && d2 < best)
                 {

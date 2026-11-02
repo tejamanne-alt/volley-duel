@@ -26,6 +26,9 @@ namespace VolleyDuel.Sim
         public readonly FlowTuning Flow;
         public readonly ImpactTable Impacts;
         public readonly ConditionsTuning Conditions;
+        public readonly TrickTuning Tricks;
+        public readonly FinisherTuning Finisher;
+        public readonly JoustTuning Joust;
 
         /// <summary>Seconds per frame (1/60).</summary>
         public readonly Fix64 Dt;
@@ -56,6 +59,9 @@ namespace VolleyDuel.Sim
             Flow = new FlowTuning(j["flow"]);
             Impacts = new ImpactTable(j["impacts"]);
             Conditions = new ConditionsTuning(j["conditions"]);
+            Tricks = new TrickTuning(j["tricks"]);
+            Finisher = new FinisherTuning(j["finisher"]);
+            Joust = new JoustTuning(j["joust"]);
             Dt = Fix64.FromRatio(1, 60);
             GravityDt = Ball.Gravity * Dt;
             HalfGravityDt2 = Ball.Gravity * Dt * Dt / 2;
@@ -256,7 +262,7 @@ namespace VolleyDuel.Sim
 
     public sealed class SetTuning
     {
-        public readonly Fix64 QuickPeakAboveNet, QuickTargetFromNet, QuickPowerScale, HighPeakAboveNet, HighTargetFromNet, MissedPowerScale;
+        public readonly Fix64 QuickPeakAboveNet, QuickTargetFromNet, QuickPowerScale, HighPeakAboveNet, HighTargetFromNet, MissedPowerScale, BackTargetFromNet, BackPeakAboveNet;
         public readonly int QuickReadCut, HighBlockWiden, QuickStick;
 
         public SetTuning(JsonNode j)
@@ -270,6 +276,8 @@ namespace VolleyDuel.Sim
             HighBlockWiden = j.Int("highBlockWiden");
             MissedPowerScale = j.Fix("missedPowerScale");
             QuickStick = j.Int("quickStick");
+            BackTargetFromNet = j.Fix("backTargetFromNet");
+            BackPeakAboveNet = j.Fix("backPeakAboveNet");
         }
     }
 
@@ -502,5 +510,51 @@ namespace VolleyDuel.Sim
 
         /// <summary>Recipe for a callout, or null when the callout has no impact recipe.</summary>
         public ImpactRecipe For(Callout callout) => (int)callout < byCallout.Length ? byCallout[(int)callout] : null;
+    }
+}
+
+namespace VolleyDuel.Sim
+{
+    public sealed class TrickTuning
+    {
+        public readonly int AmpWindow;
+        public readonly Fix64 SlideNetMargin, InkReturnMinSpeed, DecoyFakeSpeedDeep;
+
+        public TrickTuning(JsonNode j)
+        {
+            AmpWindow = j.Int("ampWindow");
+            SlideNetMargin = j.Fix("slideNetMargin");
+            InkReturnMinSpeed = j.Fix("inkReturnMinSpeed");
+            DecoyFakeSpeedDeep = j.Fix("decoyFakeSpeedDeep");
+        }
+    }
+
+    public sealed class FinisherTuning
+    {
+        public readonly int DenialLead, DenialJitter, IppitsuWindow;
+        public readonly Fix64 ScriptPeak, TargetFromNet, DeniedPop;
+
+        public FinisherTuning(JsonNode j)
+        {
+            DenialLead = j.Int("denialLead");
+            DenialJitter = j.Int("denialJitter");
+            ScriptPeak = j.Fix("scriptPeak");
+            TargetFromNet = j.Fix("targetFromNet");
+            IppitsuWindow = j.Int("ippitsuWindow");
+            DeniedPop = j.Fix("deniedPop");
+        }
+    }
+
+    public sealed class JoustTuning
+    {
+        public readonly Fix64 NetWindow, Speed;
+        public readonly int FrameWindow;
+
+        public JoustTuning(JsonNode j)
+        {
+            NetWindow = j.Fix("netWindow");
+            FrameWindow = j.Int("frameWindow");
+            Speed = j.Fix("speed");
+        }
     }
 }

@@ -62,7 +62,9 @@ namespace VolleyDuel.Sim
                 perfectHalf += widen;
                 goodHalf += widen;
             }
-            bool hanging = fb.Jump == JumpKind.CommitBlock && fb.HangUntil >= crossFrame;
+            // Commit Block covers both spike timings: hands still held over the net at the hitter's contact.
+            // Whether the ball still meets them at the crossing is the spatial check above.
+            bool hanging = fb.Jump == JumpKind.CommitBlock && fb.HangUntil >= s.World;
             int abs = delta < 0 ? -delta : delta;
             BlockOutcome outcome;
             if (hanging || abs <= perfectHalf) outcome = BlockOutcome.Stuff;

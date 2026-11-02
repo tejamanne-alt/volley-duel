@@ -7,6 +7,7 @@ namespace VolleyDuel.Sim
         void UpdateFighter(ref GameState s, int i)
         {
             ref FighterState f = ref GameState.Fighter(ref s, i);
+            if (f.Action != FighterAction.Airborne && f.Input.Buffered(InputButtons.Finisher, s.World, T.Rings.BufferFrames) && TryFinisher(ref s, i)) return;
             switch (f.Action)
             {
                 case FighterAction.JumpStartup:
@@ -257,16 +258,18 @@ namespace VolleyDuel.Sim
             f.Vel = FixVec2.Zero;
             int recovery = T.Jump.LandingRecovery + d.LandingRecoveryExtra + f.ExtraRecovery;
             if (jump == JumpKind.FakeHop) recovery = T.Jump.FakeHopRecovery + f.ExtraRecovery;
-            if (s.World < f.KnockbackUntil)
+            if (f.PendingKnockback > 0)
             {
-                recovery += f.KnockbackUntil - s.World;
-                Emit(VolleyEvent.Knockback, i, f.KnockbackUntil - s.World);
-                f.KnockbackUntil = int.MinValue / 2;
+                // Shockwave Block: the shock ring delays the hitter's next action on landing.
+                recovery += f.PendingKnockback;
+                Emit(VolleyEvent.Knockback, i, f.PendingKnockback);
+                f.PendingKnockback = 0;
             }
             f.ExtraRecovery = 0;
             f.Jump = JumpKind.None;
             f.Charging = false;
             f.SwungThisJump = false;
+            if (jump == JumpKind.ShockwaveBlock || jump == JumpKind.CommitBlock || jump == JumpKind.Slide || jump == JumpKind.JumpServe) f.ActiveTrick = TrickKind.None;
             if (f.CommitContact > s.World || f.CommitKind == TouchKind.Spike || f.CommitKind == TouchKind.Tip || f.CommitKind == TouchKind.Roll || f.CommitKind == TouchKind.JumpServe)
             {
                 ClearCommit(ref f);

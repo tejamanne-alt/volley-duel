@@ -89,7 +89,7 @@
     "minContactHeight": "0.2",
     "bodyHalfWidth": "0.22",
     "commitStepSpeed": "3.0",
-    "touchRecovery": 8,           // frames after a grounded touch before the next action
+    "touchRecovery": 6,           // frames after a grounded touch before the next action
     "netReachOver": "0.15"        // how far over the net a contact point may be (jousts, tight balls)
   },
   "dive": {
@@ -99,7 +99,7 @@
     "recovery": 32
   },
   "pass": {
-    "targetFromNet": "1.6",
+    "targetFromNet": "1.1",
     "peakHeight": "4.2",
     "saveDepth": "3.5",           // third-touch bump over the net lands this deep
     "savePeak": "4.6"
@@ -113,7 +113,9 @@
     "highTargetFromNet": "0.9",
     "highBlockWiden": 2,          // spec: widens the block ring by 2 frames
     "missedPowerScale": "0.6",    // spec: a missed set ring allows only a weak hit or a tip
-    "quickStick": 3               // stick toward the net at or beyond +3 makes a quick set
+    "quickStick": 3,              // stick toward the net at or beyond +3 makes a quick set
+    "backTargetFromNet": "3.0",   // stick away at the set: a high ball to the back court (Pipe Shot setup)
+    "backPeakAboveNet": "2.6"
   },
   "attack": {
     "spikeBaseSpeed": "17",       // spec: 17 m/s plus 1 per Power point above 5
@@ -201,6 +203,25 @@
     "streak": 3,                  // spec
     "perfectScale": "1.5",        // spec: Perfect window +50%
     "breakerSurge": 100           // spec
+  },
+  "tricks": {
+    "ampWindow": 3,               // AMP (swipe up) within 3 frames of TRICK makes it Amped
+    "slideNetMargin": "0.35",     // Slide drift stops this far from the net
+    "inkReturnMinSpeed": "10",
+    "decoyFakeSpeedDeep": "5.4"   // Kalari Twist (Amped): the decoy flight heads this deep
+  },
+  "finisher": {
+    "denialLead": 18,             // the Denial ring shows this many frames before its window
+    "denialJitter": 10,           // window start varies by up to this many frames (match RNG)
+    "scriptPeak": "6.0",          // scripted ball path peak for presentation
+    "targetFromNet": "3.0",
+    "ippitsuWindow": 20,          // frames after a Perfect dig in which Ippitsu can fire
+    "deniedPop": "6.0"            // a Denial pops the ball up on the defender's side
+  },
+  "joust": {
+    "netWindow": "0.4",           // the ball must be this close to the net
+    "frameWindow": 2,             // both contacts within this many frames
+    "speed": "14"
   },
   "scoring": {
     "setTarget": 7,               // spec: first to 7, win by 2, capped at 9

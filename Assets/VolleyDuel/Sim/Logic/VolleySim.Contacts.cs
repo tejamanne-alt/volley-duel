@@ -121,6 +121,8 @@ namespace VolleyDuel.Sim
                 Fix64 range = DiveRange(ref s, i);
                 Fix64 diveCover = T.Dive.Speed * T.Dt * framesLeft;
                 f.RingDive = dist <= reach + range && dist - reach <= diveCover;
+                // Nothing Drops: once per rally, anything inside her dive range is a save.
+                if (d.GuaranteedFloorSave && !f.FloorSaveUsed) f.RingDive = dist <= reach + range;
             }
         }
 
@@ -277,7 +279,7 @@ namespace VolleyDuel.Sim
             return (worldDir > 0 && dx.IsPositive) || (worldDir < 0 && dx.IsNegative);
         }
 
-        bool TryCommitGround(ref GameState s, int i, InputButtons button)
+        bool TryCommitGround(ref GameState s, int i, InputButtons button, TrickKind trick = TrickKind.None, bool amped = false)
         {
             ref FighterState f = ref GameState.Fighter(ref s, i);
             FighterDefinition d = Def(i);
@@ -318,6 +320,12 @@ namespace VolleyDuel.Sim
 
             f.Input.Consume(button);
             BeginCommit(ref s, i, kind, press, grade);
+            if (trick != TrickKind.None)
+            {
+                amped = BeginTrick(ref s, i, trick, amped);
+                f.CommitTrick = trick;
+                f.CommitAmped = amped;
+            }
             if (kind == TouchKind.FloatServe) return true;
             f.DiveTargetX = f.RingPoint.X;
             if (dive)
@@ -435,6 +443,12 @@ namespace VolleyDuel.Sim
             f.Charge = (byte)charge;
             BeginCommit(ref s, i, kind, press, grade);
             if (trick != null && trick.Kind == TrickKind.KalariTwist) f.CommitLock = f.CommitContact;
+            if (f.ActiveTrick == TrickKind.QuickStroke && f.ActiveTrickAmped)
+            {
+                // Amped Quick Stroke: short or deep is decided on the last frame.
+                TrickDefinition stroke = TrickFor(i, TrickKind.QuickStroke, true);
+                if (stroke != null && stroke.Has(MoveFlags.LateAim)) f.CommitLock = f.CommitContact;
+            }
             if (choice == AttackChoice.Tip)
             {
                 f.Bait = FeintKind.Tip;
@@ -568,17 +582,34 @@ namespace VolleyDuel.Sim
             bool airborne = f.Action == FighterAction.Airborne;
             bool diving = f.Action == FighterAction.Diving;
 
+            bool guaranteedSave = false;
             if (!InReach(ref s, i, kind))
             {
-                Emit(VolleyEvent.Whiff, i, (int)kind, 0, f.Pos.X, f.Pos.Y);
-                EndTouch(ref s, i, airborne, diving);
-                return;
+                // Nothing Drops: one floor save per rally on any ball inside her dive range.
+                Fix64 gap = Fix64.Abs(s.Ball.Pos.X - f.Pos.X);
+                bool rescue = diving && d.GuaranteedFloorSave && !f.FloorSaveUsed && s.Ball.Pos.Y >= T.Reach.MinContactHeight &&
+                    gap <= T.Reach.BumpReach + DiveRange(ref s, i) + (f.ActiveTrick == TrickKind.Sweep ? d.Defense.Range : Fix64.Zero);
+                if (!rescue)
+                {
+                    Emit(VolleyEvent.Whiff, i, (int)kind, 0, f.Pos.X, f.Pos.Y);
+                    EndTouch(ref s, i, airborne, diving);
+                    return;
+                }
+                f.Pos.X = s.Ball.Pos.X;
+                f.FloorSaveUsed = true;
+                guaranteedSave = true;
             }
 
             if (kind == TouchKind.Set && s.Ball.Pos.Y < d.Height - Fix64.FromRatio(3, 10))
             {
                 kind = TouchKind.BumpSet;
                 f.CommitKind = kind;
+            }
+            if (kind == TouchKind.Set && f.CommitTrick == TrickKind.BlindSet && f.CommitAmped && f.Input.IsHeld(InputButtons.Feint))
+            {
+                // Amped Blind Set: he can dump it over instead, decided on the last frame.
+                TrickDefinition blind = TrickFor(i, TrickKind.BlindSet, true);
+                if (blind != null && blind.Has(MoveFlags.DumpOption)) kind = TouchKind.Dump;
             }
 
             int touch = NextTouch(s, i);
@@ -614,9 +645,9 @@ namespace VolleyDuel.Sim
                     SpendStamina(ref s, i, hitter.HeavyBallDigStamina);
                 }
                 if (s.Ball.Has(BallFlags.PerfectOnly) && grade != TimingGrade.Perfect) band = ContactBand.Miss;
-                if (diving && d.GuaranteedFloorSave && !f.FloorSaveUsed && band == ContactBand.Miss)
+                if (diving && d.GuaranteedFloorSave && (guaranteedSave || !f.FloorSaveUsed) && band >= ContactBand.Shank)
                 {
-                    band = ContactBand.Loose; // Nothing Drops: one floor save per rally inside her dive range
+                    band = ContactBand.Loose; // Nothing Drops: the save keeps the ball alive
                     f.FloorSaveUsed = true;
                 }
             }
@@ -631,8 +662,13 @@ namespace VolleyDuel.Sim
             FixVec2 at = s.Ball.Pos;
             TrickKind trick = f.CommitTrick;
             bool amped = f.CommitAmped;
+            TouchKind recorded = kind;
             switch (kind)
             {
+                case TouchKind.Bump when trick == TrickKind.InkReturn:
+                    LaunchInkReturn(ref s, i, q, band, amped, incoming);
+                    recorded = TouchKind.Spike;
+                    break;
                 case TouchKind.Bump: LaunchPass(ref s, i, q, band); break;
                 case TouchKind.Save: LaunchSave(ref s, i, q, band); break;
                 case TouchKind.Set:
@@ -650,9 +686,9 @@ namespace VolleyDuel.Sim
             s.Touches = (byte)(IsServeTouch(kind) ? 0 : touch);
             s.TouchesSinceCross = (byte)(s.TouchesSinceCross + 1);
             s.LastToucher = (byte)i;
-            s.LastTouch = kind;
+            s.LastTouch = recorded;
             s.LastContactWorld = s.World;
-            if (IsAttackTouch(kind) || IsServeTouch(kind)) s.LastAttacker = (byte)i;
+            if (IsAttackTouch(recorded) || IsServeTouch(recorded)) s.LastAttacker = (byte)i;
             int payload = (int)grade | ((int)band << 4) | ((int)trick << 8) | (amped ? 1 << 15 : 0);
             Emit(VolleyEvent.Contact, i, (int)kind, payload, at.X, at.Y);
 
@@ -753,6 +789,25 @@ namespace VolleyDuel.Sim
             Launch(ref s, i, v, BallFlags.None, BallSpin.None);
         }
 
+        /// <summary>Rin's Ink Return: the dig goes straight back over the net and catches a hitter still landing.</summary>
+        void LaunchInkReturn(ref GameState s, int i, Fix64 q, ContactBand band, bool amped, Fix64 incoming)
+        {
+            TrickDefinition t = TrickFor(i, TrickKind.InkReturn, amped);
+            if (band == ContactBand.Shank)
+            {
+                Launch(ref s, i, ShankVelocity(ref s, i, true), BallFlags.Attack, BallSpin.None);
+                return;
+            }
+            Fix64 speed = Fix64.Max(T.Tricks.InkReturnMinSpeed, incoming * t.SpeedScale);
+            Fix64 x = IntoOpponent(i, t.TargetFromNet);
+            if (band == ContactBand.Loose) x += s.MatchRng.Symmetric(T.Contact.LooseAimError * LooseFactor(q));
+            FixVec2 v = AimOverNet(s.Ball.Pos, new FixVec2(x, T.Court.BallRadius), speed, T.Attack.NetClearance, i);
+            BallFlags flags = BallFlags.Attack;
+            if (t.Has(MoveFlags.Unblockable)) flags |= BallFlags.Unblockable;
+            Launch(ref s, i, v, flags, BallSpin.None);
+            CheckBlock(ref s, i);
+        }
+
         void LaunchSave(ref GameState s, int i, Fix64 q, ContactBand band)
         {
             if (band == ContactBand.Shank)
@@ -777,9 +832,17 @@ namespace VolleyDuel.Sim
             }
             TrickKind trick = f.CommitTrick;
             bool quick = f.CommitAim >= T.Set.QuickStick && f.CommitKind == TouchKind.Set;
-            if (trick == TrickKind.QuickStroke) quick = true;
-            Fix64 fromNet = quick ? T.Set.QuickTargetFromNet : T.Set.HighTargetFromNet;
-            Fix64 apex = T.Court.NetHeight + (quick ? T.Set.QuickPeakAboveNet : T.Set.HighPeakAboveNet);
+            bool back = !quick && f.CommitAim <= -T.Set.QuickStick && f.CommitKind == TouchKind.Set;
+            if (trick == TrickKind.QuickStroke)
+            {
+                // Quick Stroke: a low self-set into an instant attack with no power penalty.
+                quick = true;
+                back = false;
+                f.ActiveTrick = TrickKind.QuickStroke;
+                f.ActiveTrickAmped = f.CommitAmped;
+            }
+            Fix64 fromNet = quick ? T.Set.QuickTargetFromNet : (back ? T.Set.BackTargetFromNet : T.Set.HighTargetFromNet);
+            Fix64 apex = T.Court.NetHeight + (quick ? T.Set.QuickPeakAboveNet : (back ? T.Set.BackPeakAboveNet : T.Set.HighPeakAboveNet));
             Fix64 x = FromNet(i, fromNet);
             if (band == ContactBand.Loose)
             {
@@ -867,6 +930,12 @@ namespace VolleyDuel.Sim
             Fix64 speed = d.SpikeSpeed;
             if (f.Charge > 0) speed = speed * (Fix64.One + T.Attack.ChargeBonus * f.Charge / d.ChargeFrames);
             bool noQuickPenalty = trick != null && trick.Has(MoveFlags.NoQuickPenalty);
+            if (f.ActiveTrick == TrickKind.QuickStroke)
+            {
+                TrickDefinition stroke = TrickFor(i, TrickKind.QuickStroke, f.ActiveTrickAmped);
+                if (stroke != null && stroke.Has(MoveFlags.NoQuickPenalty)) noQuickPenalty = true;
+                f.ActiveTrick = TrickKind.None;
+            }
             if (s.Ball.Has(BallFlags.QuickSet) && !noQuickPenalty) speed = speed * T.Set.QuickPowerScale;
             if (s.Ball.Has(BallFlags.WeakSet)) speed = speed * T.Set.MissedPowerScale;
             if (trick != null) speed = speed * trick.SpeedScale;

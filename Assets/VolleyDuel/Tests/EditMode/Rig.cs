@@ -43,7 +43,8 @@ namespace VolleyDuel.Tests
 #if UNITY_5_3_OR_NEWER
             return new DirectoryDataSource(System.IO.Path.Combine(UnityEngine.Application.dataPath, "VolleyDuel", "Resources", "Data"));
 #else
-            return DirectoryDataSource.FindFrom(AppContext.BaseDirectory);
+            string overrideDir = Environment.GetEnvironmentVariable("VOLLEYDUEL_REPO");
+            return DirectoryDataSource.FindFrom(string.IsNullOrEmpty(overrideDir) ? AppContext.BaseDirectory : overrideDir);
 #endif
         }
 

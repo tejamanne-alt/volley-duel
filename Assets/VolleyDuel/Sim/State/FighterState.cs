@@ -61,7 +61,8 @@ namespace VolleyDuel.Sim
         // Rally bookkeeping.
         public bool FloorSaveUsed;
         public byte ExtraRecovery;
-        public int KnockbackUntil;
+        /// <summary>Shockwave knock-back frames added to this fighter's next landing.</summary>
+        public byte PendingKnockback;
         public FeintKind Bait;
         public int BaitStart;
         public int BaitEnd;
@@ -117,7 +118,7 @@ namespace VolleyDuel.Sim
             w.WriteInt32(BlockRingReveal);
             w.WriteBool(FloorSaveUsed);
             w.WriteByte(ExtraRecovery);
-            w.WriteInt32(KnockbackUntil);
+            w.WriteByte(PendingKnockback);
             w.WriteByte((byte)Bait);
             w.WriteInt32(BaitStart);
             w.WriteInt32(BaitEnd);
@@ -171,7 +172,7 @@ namespace VolleyDuel.Sim
             BlockRingReveal = r.ReadInt32();
             FloorSaveUsed = r.ReadBool();
             ExtraRecovery = r.ReadByte();
-            KnockbackUntil = r.ReadInt32();
+            PendingKnockback = r.ReadByte();
             Bait = (FeintKind)r.ReadByte();
             BaitStart = r.ReadInt32();
             BaitEnd = r.ReadInt32();

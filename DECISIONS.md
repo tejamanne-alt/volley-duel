@@ -118,3 +118,40 @@ Arjun–Rin. Each edge is a mastery meeting a weakness.
   contact; it stays lit until they lose a rally, and the player who breaks it gains 100 Surge.
 - Set point: the serve at set or match point flies at third speed until it crosses the net.
 - Denial: one attempt per Finisher (the first DENY press); costs 100 Surge only on success.
+
+## Kits
+
+### K1. One TRICK button, context picks the trick **[spec]**
+Each fighter's two offensive tricks have disjoint trigger contexts, so the button never needs
+a second input: Rafa — Afterburner on the serve, Pipe Shot when airborne ≥ 2.5 m off the net;
+Defne — Slide when approaching our own set, Overpass Hammer on a ball sent back tight on the
+first touch; Rin — Ink Return on a dig ring in standing reach, Quick Stroke on the set ring;
+Arjun — Blind Set on the set ring, Kalari Twist when airborne. Defensive tricks fire when the
+ball is the opponent's (Sweep on a dig ring out of standing reach). Amped = AMP within 3 frames
+of TRICK (the swipe-up), only if 100 Surge is available; otherwise the plain trick fires.
+
+### K2. Trick interpretations **[spec] review**
+- Slide "shifts the blocker's timing by 4 frames": the blocker's read ring is moved 4 frames.
+  Amped hides the read until take-off.
+- Commit Block "covers both spike timings": any spike contact during the 18-frame hang grades
+  as Perfect; the hands still have to meet the ball spatially at the net.
+- Shockwave knock-back is a pending 10-frame delay added to the hitter's next landing.
+- Nothing Drops: once per rally, any ball inside Rin's dive range is reached (even when a dive
+  could not get there in time) and kept alive (at least Loose).
+- Ink Return counts as an attack for kill attribution; Quick Stroke carries "no power penalty"
+  from the set to the spike; Amped Blind Set dumps instead if FEINT is held at contact.
+- Back set (stick away at set contact) sends a high ball 3 m off the net, the Pipe Shot setup.
+
+### K3. Finishers and Denial **[spec] review**
+- Triggers: Sound Barrier on Rafa's serve; Citadel on Defne's touch after her own block;
+  Ippitsu within 20 frames of Rin's Perfect dig; Maya on Arjun's second touch.
+- The Denial ring is shown 18 frames before its 4–6 frame window; the window start is jittered
+  ±10 frames by the match RNG so it cannot be memorized. One attempt; costs 100 only on success.
+- CPU Denial timing carries 6x its tier's execution noise (cpu.json `denialTimingScale`), tuned
+  so Legend-vs-Legend Finishers land 75–80% (measured 75.5% over 444 Finishers).
+
+### K4. 1v1 geometry **[spec]**
+The setter is the hitter, so passes go to 1.1 m off the net and sets travel little: quick sets
+to 0.6 m, high sets to 0.9 m. Hitting from further back makes straight spikes into mid-court
+impossible (the ball cannot clear the net and still drop in), which is realistic but made rallies
+degenerate in the Balance Lab.
