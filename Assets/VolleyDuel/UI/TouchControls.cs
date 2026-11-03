@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -19,7 +18,7 @@ namespace VolleyDuel.UI
 
         TouchStick stick;
         TouchButton hit, jump, feint, trick, finisher;
-        TextMeshProUGUI hitLabel, jumpLabel, feintLabel, finisherLabel;
+        Text hitLabel, jumpLabel, feintLabel, finisherLabel;
         Image finisherImage;
         float trickDownAt = -1f;
         bool trickSent;
@@ -42,7 +41,7 @@ namespace VolleyDuel.UI
             return c;
         }
 
-        static TouchButton Round(Transform parent, string label, Vector2 fromBottomRight, float size, out TextMeshProUGUI text)
+        static TouchButton Round(Transform parent, string label, Vector2 fromBottomRight, float size, out Text text)
         {
             RectTransform r = UiKit.At(label, parent, new Vector2(1f, 0f), new Vector2(size, size), fromBottomRight);
             r.pivot = new Vector2(0.5f, 0.5f);
@@ -50,7 +49,7 @@ namespace VolleyDuel.UI
             img.color = new Color(1f, 1f, 1f, 0.18f);
             TouchButton b = r.gameObject.AddComponent<TouchButton>();
             b.Background = img;
-            text = UiKit.Label(r, label, size * 0.2f, TextAlignmentOptions.Center, UiKit.Paper);
+            text = UiKit.Label(r, label, size * 0.2f, TextAnchor.MiddleCenter, UiKit.Paper);
             return b;
         }
 

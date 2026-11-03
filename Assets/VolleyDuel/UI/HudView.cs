@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VolleyDuel.Presentation;
@@ -20,17 +19,17 @@ namespace VolleyDuel.UI
             public RectTransform StaminaFill;
             public Image[] Pips;
             public Image[] Surge;
-            public TextMeshProUGUI Name;
+            public Text Name;
         }
 
         readonly Side[] sides = { new Side(), new Side() };
-        TextMeshProUGUI counter;
-        TextMeshProUGUI server;
-        TextMeshProUGUI callout;
-        TextMeshProUGUI banner;
-        TextMeshProUGUI status;
+        Text counter;
+        Text server;
+        Text callout;
+        Text banner;
+        Text status;
         RectTransform edgeMarker;
-        TextMeshProUGUI edgeHeight;
+        Text edgeHeight;
         float calloutAge = 99f;
         float bannerAge = 99f;
         Tuning t;
@@ -43,15 +42,15 @@ namespace VolleyDuel.UI
             h.t = sim.T;
             h.setsToWin = sim.SetsToWin;
             for (int p = 0; p < 2; p++) h.BuildSide(root, p, sim.Def(p));
-            h.counter = UiKit.Label(UiKit.At("Counter", root, new Vector2(0.5f, 1f), new Vector2(360f, 120f), new Vector2(0f, -20f)), "0 : 0", 96f, TextAlignmentOptions.Center, UiKit.Paper);
-            h.server = UiKit.Label(UiKit.At("Server", root, new Vector2(0.5f, 1f), new Vector2(360f, 50f), new Vector2(0f, -140f)), string.Empty, 34f, TextAlignmentOptions.Center, UiKit.Accent);
-            h.callout = UiKit.Label(UiKit.At("Callout", root, new Vector2(0.5f, 0.5f), new Vector2(1200f, 200f), new Vector2(0f, 160f)), string.Empty, 140f, TextAlignmentOptions.Center, UiKit.Accent);
-            h.callout.fontStyle = FontStyles.Bold | FontStyles.Italic;
-            h.banner = UiKit.Label(UiKit.At("Banner", root, new Vector2(0.5f, 0.5f), new Vector2(1400f, 160f), new Vector2(0f, -60f)), string.Empty, 90f, TextAlignmentOptions.Center, UiKit.Paper);
-            h.status = UiKit.Label(UiKit.At("Status", root, new Vector2(0.5f, 0.5f), new Vector2(1400f, 120f), new Vector2(0f, -220f)), string.Empty, 52f, TextAlignmentOptions.Center, UiKit.Paper);
+            h.counter = UiKit.Label(UiKit.At("Counter", root, new Vector2(0.5f, 1f), new Vector2(360f, 120f), new Vector2(0f, -20f)), "0 : 0", 96f, TextAnchor.MiddleCenter, UiKit.Paper);
+            h.server = UiKit.Label(UiKit.At("Server", root, new Vector2(0.5f, 1f), new Vector2(360f, 50f), new Vector2(0f, -140f)), string.Empty, 34f, TextAnchor.MiddleCenter, UiKit.Accent);
+            h.callout = UiKit.Label(UiKit.At("Callout", root, new Vector2(0.5f, 0.5f), new Vector2(1200f, 200f), new Vector2(0f, 160f)), string.Empty, 140f, TextAnchor.MiddleCenter, UiKit.Accent);
+            h.callout.fontStyle = FontStyle.BoldAndItalic;
+            h.banner = UiKit.Label(UiKit.At("Banner", root, new Vector2(0.5f, 0.5f), new Vector2(1400f, 160f), new Vector2(0f, -60f)), string.Empty, 90f, TextAnchor.MiddleCenter, UiKit.Paper);
+            h.status = UiKit.Label(UiKit.At("Status", root, new Vector2(0.5f, 0.5f), new Vector2(1400f, 120f), new Vector2(0f, -220f)), string.Empty, 52f, TextAnchor.MiddleCenter, UiKit.Paper);
             h.edgeMarker = UiKit.At("EdgeMarker", root, new Vector2(0f, 1f), new Vector2(160f, 90f), Vector2.zero);
             h.edgeMarker.pivot = new Vector2(0.5f, 1f);
-            h.edgeHeight = UiKit.Label(h.edgeMarker, "^", 40f, TextAlignmentOptions.Center, UiKit.Accent);
+            h.edgeHeight = UiKit.Label(h.edgeMarker, "^", 40f, TextAnchor.MiddleCenter, UiKit.Accent);
             h.edgeMarker.gameObject.SetActive(false);
             return h;
         }
@@ -66,7 +65,7 @@ namespace VolleyDuel.UI
             UiKit.Bar(bar, "ScoreBar", UiKit.Ink, Units.Hex(def.IdentityColor), right, out s.ScoreFill);
             RectTransform stam = UiKit.At("Stamina" + p, root, anchor, new Vector2(520f, 16f), new Vector2(sign * 40f, -104f));
             UiKit.Bar(stam, "StaminaBar", UiKit.Ink, new Color(0.45f, 0.95f, 0.55f), right, out s.StaminaFill);
-            s.Name = UiKit.Label(UiKit.At("Name" + p, root, anchor, new Vector2(520f, 50f), new Vector2(sign * 40f, -126f)), def.ShortName, 40f, right ? TextAlignmentOptions.Right : TextAlignmentOptions.Left, UiKit.Paper);
+            s.Name = UiKit.Label(UiKit.At("Name" + p, root, anchor, new Vector2(520f, 50f), new Vector2(sign * 40f, -126f)), def.ShortName, 40f, right ? TextAnchor.MiddleRight : TextAnchor.MiddleLeft, UiKit.Paper);
             s.Pips = new Image[setsToWin];
             for (int i = 0; i < setsToWin; i++)
             {
@@ -118,10 +117,10 @@ namespace VolleyDuel.UI
             server.text = s.Phase == MatchPhase.PreServe || s.Phase == MatchPhase.Rally ? (s.Server == 0 ? "< SERVE" : "SERVE >") : string.Empty;
 
             calloutAge += Time.unscaledDeltaTime;
-            callout.alpha = calloutAge < 0.9f ? 1f : Mathf.Clamp01(1f - (calloutAge - 0.9f) * 3f);
+            UiKit.SetAlpha(callout, calloutAge < 0.9f ? 1f : Mathf.Clamp01(1f - (calloutAge - 0.9f) * 3f));
             callout.rectTransform.localScale = Vector3.one * (calloutAge < 0.08f ? 1.25f : 1f);
             bannerAge += Time.unscaledDeltaTime;
-            banner.alpha = bannerAge < 1.6f ? 1f : Mathf.Clamp01(1f - (bannerAge - 1.6f) * 2f);
+            UiKit.SetAlpha(banner, bannerAge < 1.6f ? 1f : Mathf.Clamp01(1f - (bannerAge - 1.6f) * 2f));
 
             // A ball above the frame shows an edge marker with its height.
             Vector3 sp = cam.ToScreen(ballDrawn);

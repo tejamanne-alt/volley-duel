@@ -6,10 +6,11 @@ using Duel.Core.Net;
 using Duel.Core.Sim;
 using Duel.Core.Transport.BLE;
 using Duel.Core.Transport.LAN;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem.UI;
+#endif
 using UnityEngine.UI;
 using VolleyDuel.AI;
 using VolleyDuel.Presentation;
@@ -18,10 +19,12 @@ using VolleyDuel.Sim;
 namespace VolleyDuel.UI
 {
     /// <summary>
-    /// App root: menus, lobby, match screen and results, all built in code on one scene. Modes shipped in
-    /// the graybox: Quick Match (any fighter, court and CPU tier, with Rival mode), Bluetooth Duel, Wi-Fi
-    /// Duel, Training (rings and frame data shown), Replays, and a CPU-vs-CPU showcase. World Tour and
-    /// Volley School arrive with content (P5).
+    /// App root: menus, lobby, match screen and results, all built in code. It needs nothing from the
+    /// scene: <see cref="GameBootstrap"/> creates it in whatever scene the build starts with, and it adds
+    /// its own camera, light and event system when the scene has none. Modes shipped in the graybox: Quick
+    /// Match (any fighter, court and CPU tier, with Rival mode), Bluetooth Duel, Wi-Fi Duel, Training
+    /// (rings and frame data shown), Replays, and a CPU-vs-CPU showcase. World Tour and Volley School
+    /// arrive with content (P5).
     /// </summary>
     public sealed class GameApp : MonoBehaviour
     {
@@ -66,12 +69,27 @@ namespace VolleyDuel.UI
         string lastReplayPath = string.Empty;
         bool rematchRequested;
         bool resultsShown;
-        TextMeshProUGUI lobbyStatus;
+        Text lobbyStatus;
         RectTransform courtList;
         int listedCourts = -1;
-        TMP_InputField addressField;
+        InputField addressField;
+        string fatal;
 
         void Awake()
+        {
+            try
+            {
+                Startup();
+            }
+            catch (Exception e)
+            {
+                // Never leave the player on a blank screen: say what failed (OnGUI below needs no assets).
+                fatal = e.GetType().Name + ": " + e.Message;
+                Debug.LogException(e);
+            }
+        }
+
+        void Startup()
         {
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
@@ -93,6 +111,15 @@ namespace VolleyDuel.UI
             canvas = UiKit.Canvas("UI", 10);
             safe = UiKit.SafeArea(canvas.transform);
             Show(Screen.Main);
+            Debug.Log("Volley Duel: started. " + tables.Fighters.Length + " fighters, " + tables.Courts.Length + " courts, sim version " + SimVersion.Compute(tables).ToString("X16"));
+        }
+
+        void OnGUI()
+        {
+            if (fatal == null) return;
+            var style = new GUIStyle(GUI.skin.label) { fontSize = Mathf.Max(18, UnityEngine.Screen.height / 30), wordWrap = true };
+            style.normal.textColor = Color.white;
+            GUI.Label(new Rect(40f, 40f, UnityEngine.Screen.width - 80f, UnityEngine.Screen.height - 80f), "Volley Duel could not start.\n\n" + fatal, style);
         }
 
         void EnsureSceneBasics()
@@ -114,12 +141,25 @@ namespace VolleyDuel.UI
                 light.intensity = 1.1f;
                 light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
             }
-            if (FindAnyObjectByType<EventSystem>() == null)
-            {
-                var es = new GameObject("EventSystem");
-                es.AddComponent<EventSystem>();
-                es.AddComponent<InputSystemUIInputModule>();
-            }
+            EnsureEventSystem();
+        }
+
+        /// <summary>
+        /// One event system whose input module matches the project's Active Input Handling: the Input System
+        /// module when that backend is on, the legacy module otherwise. A scene template's mismatched module
+        /// would leave every button dead.
+        /// </summary>
+        static void EnsureEventSystem()
+        {
+            EventSystem es = FindAnyObjectByType<EventSystem>();
+            if (es == null) es = new GameObject("EventSystem").AddComponent<EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+            StandaloneInputModule legacy = es.GetComponent<StandaloneInputModule>();
+            if (legacy != null) DestroyImmediate(legacy);
+            if (es.GetComponent<InputSystemUIInputModule>() == null) es.gameObject.AddComponent<InputSystemUIInputModule>();
+#else
+            if (es.GetComponent<StandaloneInputModule>() == null) es.gameObject.AddComponent<StandaloneInputModule>();
+#endif
         }
 
         // ------------------------------------------------------------------ screens
@@ -146,7 +186,7 @@ namespace VolleyDuel.UI
         RectTransform Backdrop(string title)
         {
             UiKit.Panel(screenRoot, "Backdrop", new Color(0.04f, 0.05f, 0.07f, 0.92f), Vector2.zero, Vector2.one);
-            UiKit.Label(UiKit.At("Title", screenRoot, new Vector2(0.5f, 1f), new Vector2(1600f, 160f), new Vector2(0f, -40f)), title, 96f, TextAlignmentOptions.Center, UiKit.Accent).fontStyle = FontStyles.Bold | FontStyles.Italic;
+            UiKit.Label(UiKit.At("Title", screenRoot, new Vector2(0.5f, 1f), new Vector2(1600f, 160f), new Vector2(0f, -40f)), title, 96f, TextAnchor.MiddleCenter, UiKit.Accent).fontStyle = FontStyle.BoldAndItalic;
             return UiKit.Column(screenRoot, "Column", 900f, new Vector2(0.5f, 0.5f));
         }
 
@@ -179,13 +219,13 @@ namespace VolleyDuel.UI
 
         void Cycle(RectTransform col, Func<string> label, Action next)
         {
-            TextMeshProUGUI text = null;
+            Text text = null;
             Button b = UiKit.Button(col, label(), () =>
             {
                 next();
                 text.text = label();
             }, 90f);
-            text = b.GetComponentInChildren<TextMeshProUGUI>();
+            text = b.GetComponentInChildren<Text>();
         }
 
         void BuildSettings()
@@ -208,7 +248,7 @@ namespace VolleyDuel.UI
                 string path = f;
                 UiKit.Button(col, Path.GetFileNameWithoutExtension(path), () => PlayReplay(path), 80f);
             }
-            if (files.Count == 0) UiKit.Label(UiKit.Rect("Empty", col, Vector2.zero, Vector2.one), "No replays yet: every match is saved here.", 40f, TextAlignmentOptions.Center, UiKit.Paper).gameObject.AddComponent<LayoutElement>().preferredHeight = 90f;
+            if (files.Count == 0) UiKit.Label(UiKit.Rect("Empty", col, Vector2.zero, Vector2.one), "No replays yet: every match is saved here.", 40f, TextAnchor.MiddleCenter, UiKit.Paper).gameObject.AddComponent<LayoutElement>().preferredHeight = 90f;
             UiKit.Button(col, "Back", () => Show(Screen.Main), 80f);
         }
 
@@ -218,7 +258,7 @@ namespace VolleyDuel.UI
             int winner = s.Winner;
             string name = winner < 2 ? runner.Sim.Def(winner).ShortName.ToUpperInvariant() : "NO CONTEST";
             RectTransform col = Backdrop(winner < 2 ? name + " WINS " + s.SetsWon(winner) + "-" + s.SetsWon(1 - winner) : name);
-            if (lastReplayPath.Length > 0) UiKit.Label(UiKit.Rect("Saved", col, Vector2.zero, Vector2.one), "Replay saved", 36f, TextAlignmentOptions.Center, UiKit.Dim).gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+            if (lastReplayPath.Length > 0) UiKit.Label(UiKit.Rect("Saved", col, Vector2.zero, Vector2.one), "Replay saved", 36f, TextAnchor.MiddleCenter, UiKit.Dim).gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
             if (runner is NetMatchRunner)
             {
                 UiKit.Button(col, "Rematch", () =>
@@ -237,7 +277,7 @@ namespace VolleyDuel.UI
                 CloseLobby();
                 Show(Screen.Main);
             }, 80f);
-            lobbyStatus = UiKit.Label(UiKit.Rect("Status", col, Vector2.zero, Vector2.one), string.Empty, 36f, TextAlignmentOptions.Center, UiKit.Paper);
+            lobbyStatus = UiKit.Label(UiKit.Rect("Status", col, Vector2.zero, Vector2.one), string.Empty, 36f, TextAnchor.MiddleCenter, UiKit.Paper);
             lobbyStatus.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
         }
 
@@ -281,7 +321,7 @@ namespace VolleyDuel.UI
                 }, 80f);
             }
             courtList = UiKit.Column(screenRoot, "Courts", 700f, new Vector2(0.88f, 0.5f));
-            lobbyStatus = UiKit.Label(UiKit.At("Status", screenRoot, new Vector2(0.5f, 0f), new Vector2(1600f, 90f), new Vector2(0f, 30f)), string.Empty, 40f, TextAlignmentOptions.Center, UiKit.Paper);
+            lobbyStatus = UiKit.Label(UiKit.At("Status", screenRoot, new Vector2(0.5f, 0f), new Vector2(1600f, 90f), new Vector2(0f, 30f)), string.Empty, 40f, TextAnchor.MiddleCenter, UiKit.Paper);
             UiKit.Button(col, "Back", () =>
             {
                 CloseLobby();
@@ -289,7 +329,7 @@ namespace VolleyDuel.UI
             }, 80f);
         }
 
-        TMP_InputField AddressField(RectTransform col)
+        InputField AddressField(RectTransform col)
         {
             RectTransform r = UiKit.Rect("Address", col, Vector2.zero, Vector2.one);
             r.gameObject.AddComponent<LayoutElement>().preferredHeight = 90f;
@@ -298,14 +338,13 @@ namespace VolleyDuel.UI
             RectTransform area = UiKit.Rect("Text Area", r, Vector2.zero, Vector2.one);
             area.offsetMin = new Vector2(20f, 6f);
             area.offsetMax = new Vector2(-20f, -6f);
-            area.gameObject.AddComponent<RectMask2D>();
-            TextMeshProUGUI placeholder = UiKit.Label(area, "192.168.1.20:47611", 40f, TextAlignmentOptions.Left, UiKit.Dim);
-            TextMeshProUGUI text = UiKit.Label(area, string.Empty, 40f, TextAlignmentOptions.Left, UiKit.Paper);
-            TMP_InputField field = r.gameObject.AddComponent<TMP_InputField>();
-            field.textViewport = area;
+            Text placeholder = UiKit.Label(area, "192.168.1.20:47611", 40f, TextAnchor.MiddleLeft, UiKit.Dim);
+            Text text = UiKit.Label(area, string.Empty, 40f, TextAnchor.MiddleLeft, UiKit.Paper);
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            InputField field = r.gameObject.AddComponent<InputField>();
             field.textComponent = text;
             field.placeholder = placeholder;
-            field.contentType = TMP_InputField.ContentType.Standard;
+            field.targetGraphic = bg;
             return field;
         }
 
@@ -358,7 +397,7 @@ namespace VolleyDuel.UI
         void ShowMessage(string text)
         {
             Show(Screen.Main);
-            UiKit.Label(UiKit.At("Message", screenRoot, new Vector2(0.5f, 0f), new Vector2(1600f, 90f), new Vector2(0f, 30f)), text, 40f, TextAlignmentOptions.Center, UiKit.Accent);
+            UiKit.Label(UiKit.At("Message", screenRoot, new Vector2(0.5f, 0f), new Vector2(1600f, 90f), new Vector2(0f, 30f)), text, 40f, TextAnchor.MiddleCenter, UiKit.Accent);
         }
 
         // ------------------------------------------------------------------ matches

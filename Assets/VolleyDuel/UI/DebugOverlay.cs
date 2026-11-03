@@ -1,7 +1,7 @@
 using System.Text;
 using Duel.Core.Net;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace VolleyDuel.UI
 {
@@ -11,7 +11,7 @@ namespace VolleyDuel.UI
     /// </summary>
     public sealed class DebugOverlay : MonoBehaviour
     {
-        TextMeshProUGUI text;
+        Text text;
         readonly StringBuilder sb = new StringBuilder(512);
         float refresh;
 
@@ -19,7 +19,7 @@ namespace VolleyDuel.UI
         {
             RectTransform r = UiKit.At("DebugOverlay", safeArea, new Vector2(0f, 0f), new Vector2(900f, 260f), new Vector2(20f, 120f));
             DebugOverlay d = r.gameObject.AddComponent<DebugOverlay>();
-            d.text = UiKit.Label(r, string.Empty, 26f, TextAlignmentOptions.BottomLeft, new Color(0.7f, 1f, 0.7f, 0.9f));
+            d.text = UiKit.Label(r, string.Empty, 26f, TextAnchor.LowerLeft, new Color(0.7f, 1f, 0.7f, 0.9f));
             return d;
         }
 

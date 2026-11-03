@@ -18,6 +18,9 @@ dotnet format whitespace Headless/VolleyDuel.Headless.sln --verify-no-changes -v
 echo "== tests"
 dotnet test Headless/VolleyDuel.Headless.sln -c Release --no-build -nologo -v quiet
 
+echo "== unity assembly references"
+python3 scripts/asmdef_check.py
+
 if [ -f scripts/gen_meta.py ]; then
   echo "== unity .meta files"
   python3 scripts/gen_meta.py --check

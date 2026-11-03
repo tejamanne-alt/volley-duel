@@ -7,6 +7,20 @@ namespace UnityEditor
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class MenuItem : Attribute { public MenuItem(string itemName) { } }
 
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class InitializeOnLoadAttribute : Attribute { }
+
+    public static class EditorApplication
+    {
+        public delegate void CallbackFunction();
+        public static CallbackFunction delayCall;
+        public static bool isPlayingOrWillChangePlaymode => false;
+    }
+
+    public static class EditorPrefs { public static string GetString(string key, string defaultValue) => defaultValue; }
+
+    public static class EditorUtility { public static void SetDirty(UnityEngine.Object target) { } }
+
     public enum BuildTarget { StandaloneWindows64 = 19, iOS = 9, Android = 13 }
 
     [Flags]
@@ -32,7 +46,9 @@ namespace UnityEditor
         public static bool allowedAutorotateToLandscapeRight { get; set; }
         public static bool runInBackground { get; set; }
         public static void SetApplicationIdentifier(Build.NamedBuildTarget buildTarget, string identifier) { }
+        public static string GetApplicationIdentifier(Build.NamedBuildTarget buildTarget) => "";
         public static void SetScriptingBackend(Build.NamedBuildTarget buildTarget, ScriptingImplementation backend) { }
+        public static ScriptingImplementation GetScriptingBackend(Build.NamedBuildTarget buildTarget) => ScriptingImplementation.IL2CPP;
 
         public static class Android
         {
@@ -43,6 +59,8 @@ namespace UnityEditor
         public static class iOS
         {
             public static string targetOSVersionString { get; set; }
+            public static bool appleEnableAutomaticSigning { get; set; }
+            public static string appleDeveloperTeamID { get; set; }
         }
     }
 
@@ -91,12 +109,20 @@ namespace UnityEditor.Build
         public static readonly NamedBuildTarget Android = default;
         public static readonly NamedBuildTarget iOS = default;
     }
+
+    public interface IOrderedCallback { int callbackOrder { get; } }
+
+    public interface IPreprocessBuildWithReport : IOrderedCallback { void OnPreprocessBuild(Reporting.BuildReport report); }
 }
 
 namespace UnityEditor.Build.Reporting
 {
     public enum BuildResult { Unknown, Succeeded, Failed, Cancelled }
-    public struct BuildSummary { public BuildResult result => BuildResult.Unknown; }
+    public struct BuildSummary
+    {
+        public BuildResult result => BuildResult.Unknown;
+        public BuildTarget platform => BuildTarget.iOS;
+    }
     public sealed class BuildReport : UnityEngine.Object { public BuildSummary summary => default; }
 }
 
@@ -145,6 +171,8 @@ namespace UnityEditor.iOS.Xcode
         public void WriteToFile(string path) { }
         public string GetUnityFrameworkTargetGuid() => "";
         public string GetUnityMainTargetGuid() => "";
+        public static string GetUnityTestTargetName() => "Unity-iPhone Tests";
+        public string TargetGuidByName(string name) => "";
         public void SetBuildProperty(string targetGuid, string name, string value) { }
         public void AddFrameworkToProject(string targetGuid, string framework, bool weak) { }
     }

@@ -11,7 +11,7 @@
         "VolleyDuel.AI",
         "VolleyDuel.Presentation",
         "Unity.InputSystem",
-        "Unity.TextMeshPro"
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

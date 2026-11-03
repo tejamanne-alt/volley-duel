@@ -68,12 +68,16 @@ dotnet test Headless/VolleyDuel.Headless.sln            # tests only
 dotnet run -c Release --project Headless/VolleyDuel.BalanceLab -- --help
 dotnet format whitespace Headless/VolleyDuel.Headless.sln # fix formatting
 python3 scripts/gen_meta.py              # add missing Unity .meta files (deterministic GUIDs)
+python3 scripts/asmdef_check.py          # every asmdef references what its code uses (Unity won't build otherwise)
 dotnet run -c Release --project Headless/VolleyDuel.BalanceLab -- netsoak --matches 30   # netcode soak gate
 ```
 
-In Unity: `Volley Duel/Setup Project` (restart the editor once if it reports that it switched
-the input handling), then `Volley Duel/Build Scenes`, then press Play in
-`Assets/VolleyDuel/Scenes/Main.unity`. Keyboard: A/D move, W/S up/down, J HIT, K JUMP, L FEINT,
+In Unity: open the project and build. `BuildIdentity` (Assets/VolleyDuel/Editor) applies the app
+id `com.astradite.volleyduel`, iOS automatic signing with the Teja Manne team, landscape, IL2CPP
+and the graybox materials on every editor load and before every build. Change identity there, not
+in Player Settings. The game starts itself in any scene (`GameBootstrap`). `Volley Duel/Setup Project`
+also switches the render pipeline to URP, and `Volley Duel/Build Scenes` writes
+`Assets/VolleyDuel/Scenes/Main.unity`; both are optional. Keyboard: A/D move, W/S up/down, J HIT, K JUMP, L FEINT,
 U TRICK, I Amped TRICK, O FINISHER/DENY.
 
 The .NET SDK in the cloud container comes from Ubuntu's `dotnet-sdk-8.0` package.
@@ -93,6 +97,7 @@ Tests use NUnit 3 (same as the Unity Test Framework) so EditMode tests run in bo
 | Rules: every touch, fault, scoring rule, Read outcome, contact model, meters | `Assets/VolleyDuel/Tests/EditMode` | automated |
 | Determinism: 10,000-frame golden replay hash (EditMode; device runs pending) | tests + `Tools/BalanceLab golden` | automated here; devices need a human |
 | Sim version hash matches sim sources | `Headless/Gates` | automated |
+| Unity assembly references cover what each asmdef's code uses | `scripts/asmdef_check.py` | automated |
 | Balance Lab: pairings 45–55%, receiver wins 55–60% of rallies, tiers monotonic | `Tools/BalanceLab gate` | automated |
 | Netcode: rollback soak over a simulated lossy link, zero desyncs | `Packages/com.duel.core/Tests`, `NetplayTests`, `Tools/BalanceLab netsoak` | automated; 30-match device BLE soak needs phones |
 | Performance, thermal, BLE RTT, look-dev slice | devices | human |

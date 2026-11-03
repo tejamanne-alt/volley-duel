@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>UnityApiCheck.EditorIos</AssemblyName>
-    <DefineConstants>$(DefineConstants);UNITY_5_3_OR_NEWER;UNITY_6000_0_OR_NEWER;UNITY_EDITOR;UNITY_IOS</DefineConstants>
+    <DefineConstants>$(DefineConstants);UNITY_5_3_OR_NEWER;UNITY_6000_0_OR_NEWER;UNITY_EDITOR;UNITY_IOS;ENABLE_LEGACY_INPUT_MANAGER</DefineConstants>
     <UnityEditorVariant>true</UnityEditorVariant>
   </PropertyGroup>
   <Import Project="../UnityApiCheck.props" />

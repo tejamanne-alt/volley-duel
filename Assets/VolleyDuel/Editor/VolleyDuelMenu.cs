@@ -15,7 +15,8 @@ namespace VolleyDuel.EditorTools
 {
     /// <summary>
     /// Editor entry points. Scenes and settings are always made through these, never by hand-editing YAML.
-    /// "Volley Duel/Setup Project" configures player settings, URP and TextMeshPro.
+    /// Identity, signing and platform defaults apply automatically (<see cref="BuildIdentity"/>).
+    /// "Volley Duel/Setup Project" re-applies them and also sets URP as the render pipeline.
     /// "Volley Duel/Build Scenes" builds the one app scene.
     /// "Volley Duel/Validate Data" bakes the JSON tables.
     /// "Volley Duel/Print Sim Version" prints the handshake fingerprint.
@@ -29,47 +30,13 @@ namespace VolleyDuel.EditorTools
         [MenuItem("Volley Duel/Setup Project")]
         public static void SetupProject()
         {
-            PlayerSettings.companyName = "Volley Duel";
-            PlayerSettings.productName = "Volley Duel";
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.volleyduel.game");
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.volleyduel.game");
-
-            // Landscape only (contract).
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
-            PlayerSettings.allowedAutorotateToPortrait = false;
-            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
-            PlayerSettings.allowedAutorotateToLandscapeRight = true;
-
-            // IL2CPP and ARM64 on both phones; Android 8.0+ (BLE peripheral support is broad from API 26).
-            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-            PlayerSettings.iOS.targetOSVersionString = "15.0";
-            PlayerSettings.runInBackground = false;
-
-            EnableInputSystem();
             EnsurePipeline();
-            ImportTextMeshPro();
+            BuildIdentity.Apply();
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
+            PlayerSettings.runInBackground = false;
             AssetDatabase.SaveAssets();
-            Debug.Log("Volley Duel: project settings applied (landscape, IL2CPP ARM64, URP, TextMeshPro).");
-        }
-
-        /// <summary>
-        /// Touch, keyboard and gamepad go through the Input System package (InputSystemUIInputModule). Turn its
-        /// native backends on ("Both" keeps the legacy API working for tools). Takes effect after a restart.
-        /// </summary>
-        static void EnableInputSystem()
-        {
-            UnityEngine.Object[] settings = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
-            if (settings.Length == 0) return;
-            var so = new SerializedObject(settings[0]);
-            SerializedProperty handler = so.FindProperty("activeInputHandler");
-            if (handler == null || handler.intValue == 2) return;
-            handler.intValue = 2;
-            so.ApplyModifiedProperties();
-            Debug.LogWarning("Volley Duel: Active Input Handling set to Both. Restart the editor for it to take effect.");
+            string team = PlayerSettings.iOS.appleDeveloperTeamID;
+            Debug.Log("Volley Duel: project set up. " + BuildIdentity.ApplicationId + ", landscape, IL2CPP ARM64, URP, iOS team " + (string.IsNullOrEmpty(team) ? "not found (see BuildIdentity.AppleTeamId)" : team) + ".");
         }
 
         static void EnsurePipeline()
@@ -85,12 +52,6 @@ namespace VolleyDuel.EditorTools
             }
             GraphicsSettings.defaultRenderPipeline = pipeline;
             QualitySettings.renderPipeline = pipeline;
-        }
-
-        static void ImportTextMeshPro()
-        {
-            if (AssetDatabase.IsValidFolder("Assets/TextMesh Pro")) return;
-            TMPro.TMP_PackageResourceImporter.ImportResources(true, false, false);
         }
 
         [MenuItem("Volley Duel/Build Scenes")]

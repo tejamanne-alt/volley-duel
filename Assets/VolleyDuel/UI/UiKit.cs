@@ -1,13 +1,14 @@
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace VolleyDuel.UI
 {
     /// <summary>
-    /// Builds uGUI from code (no prefabs or hand-edited YAML): canvases, panels, TextMeshPro labels,
-    /// buttons and fill bars. Graybox styling stays in one place so the HUD pass can restyle it.
+    /// Builds uGUI from code (no prefabs or hand-edited YAML): canvases, panels, labels, buttons and fill
+    /// bars. Graybox styling stays in one place so the HUD pass can restyle it. Labels use uGUI Text with
+    /// the engine's built-in font, so a fresh project shows text on device with no import step
+    /// (TextMeshPro needs its essentials imported first; see DECISIONS U5).
     /// </summary>
     public static class UiKit
     {
@@ -68,17 +69,48 @@ namespace VolleyDuel.UI
             return img;
         }
 
-        public static TextMeshProUGUI Label(Transform parent, string text, float size, TextAlignmentOptions align, Color color)
+        static Font font;
+
+        /// <summary>The engine's built-in UI font, with an OS font as a fallback.</summary>
+        public static Font Font
+        {
+            get
+            {
+                if (font != null) return font;
+                try
+                {
+                    font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                }
+                catch (ArgumentException)
+                {
+                    font = null;
+                }
+                if (font == null) font = Font.CreateDynamicFontFromOSFont(new[] { "Helvetica Neue", "Roboto", "Arial" }, 32);
+                return font;
+            }
+        }
+
+        public static Text Label(Transform parent, string text, float size, TextAnchor align, Color color)
         {
             RectTransform r = Rect("Label", parent, Vector2.zero, Vector2.one);
-            TextMeshProUGUI t = r.gameObject.AddComponent<TextMeshProUGUI>();
+            Text t = r.gameObject.AddComponent<Text>();
+            t.font = Font;
             t.text = text;
-            t.fontSize = size;
+            t.fontSize = Mathf.RoundToInt(size);
             t.alignment = align;
             t.color = color;
             t.raycastTarget = false;
-            t.textWrappingMode = TextWrappingModes.NoWrap;
+            t.supportRichText = false;
+            t.horizontalOverflow = HorizontalWrapMode.Overflow;
+            t.verticalOverflow = VerticalWrapMode.Overflow;
             return t;
+        }
+
+        public static void SetAlpha(Graphic g, float alpha)
+        {
+            Color c = g.color;
+            c.a = alpha;
+            g.color = c;
         }
 
         public static Button Button(Transform parent, string label, Action onClick, float height = 110f)
@@ -96,7 +128,7 @@ namespace VolleyDuel.UI
             colors.pressedColor = Accent;
             b.colors = colors;
             if (onClick != null) b.onClick.AddListener(() => onClick());
-            Label(r, label, 46f, TextAlignmentOptions.Center, Paper);
+            Label(r, label, 46f, TextAnchor.MiddleCenter, Paper);
             return b;
         }
 

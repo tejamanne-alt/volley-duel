@@ -3,28 +3,53 @@ using UnityEngine;
 namespace VolleyDuel.Presentation
 {
     /// <summary>
-    /// Graybox geometry and materials built from primitives at runtime. There are no prefabs or
-    /// hand-made assets until art lands. URP Lit when available, Unlit for flat effects.
+    /// Graybox geometry and materials built from primitives at runtime. There are no prefabs or hand-made
+    /// meshes until art lands. Base materials come from Resources/Graybox: the editor creates them with
+    /// the active pipeline's shaders, which is what puts those shaders in the build. Shader.Find alone
+    /// returns null on device for shaders no build asset references. If they are missing (a project that
+    /// never opened the editor scripts), the runtime picks the pipeline's shaders by name, and finally a
+    /// shader every build includes, so a missing asset shows wrong colors instead of a crash.
     /// </summary>
     public static class Graybox
     {
-        static Shader lit;
-        static Shader unlit;
+        public const string LitMaterialPath = "Graybox/GrayboxLit";
+        public const string UnlitMaterialPath = "Graybox/GrayboxUnlit";
 
-        public static Material Lit(Color c)
+        static Material litBase;
+        static Material unlitBase;
+
+        public static Material Lit(Color c) => Make(ref litBase, LitMaterialPath, true, c);
+
+        public static Material Unlit(Color c) => Make(ref unlitBase, UnlitMaterialPath, false, c);
+
+        static Material Make(ref Material baseMaterial, string resource, bool lit, Color c)
         {
-            if (lit == null) lit = Shader.Find("Universal Render Pipeline/Lit");
-            if (lit == null) lit = Shader.Find("Standard");
-            var m = new Material(lit) { color = c };
-            return m;
+            if (baseMaterial == null)
+            {
+                Material loaded = Resources.Load<Material>(resource);
+                baseMaterial = loaded != null ? loaded : new Material(FindShader(lit));
+            }
+            return new Material(baseMaterial) { color = c };
         }
 
-        public static Material Unlit(Color c)
+        /// <summary>The pipeline's shaders when it is URP, the built-in ones otherwise, then always-included fallbacks.</summary>
+        public static Shader FindShader(bool lit)
         {
-            if (unlit == null) unlit = Shader.Find("Universal Render Pipeline/Unlit");
-            if (unlit == null) unlit = Shader.Find("Unlit/Color");
-            var m = new Material(unlit) { color = c };
-            return m;
+            bool srp = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline != null;
+            string[] names = srp
+                ? (lit ? new[] { "Universal Render Pipeline/Lit", "Universal Render Pipeline/Simple Lit", "Universal Render Pipeline/Unlit" } : new[] { "Universal Render Pipeline/Unlit" })
+                : (lit ? new[] { "Standard", "Legacy Shaders/Diffuse" } : new[] { "Unlit/Color" });
+            foreach (string n in names)
+            {
+                Shader s = Shader.Find(n);
+                if (s != null) return s;
+            }
+            foreach (string n in new[] { "Sprites/Default", "UI/Default", "Hidden/InternalErrorShader" })
+            {
+                Shader s = Shader.Find(n);
+                if (s != null) return s;
+            }
+            throw new System.InvalidOperationException("No usable shader found for graybox materials.");
         }
 
         public static GameObject Primitive(PrimitiveType type, string name, Transform parent, Material material)

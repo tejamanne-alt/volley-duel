@@ -1,6 +1,8 @@
 using Duel.Core.Sim;
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+#endif
 
 namespace VolleyDuel.UI
 {
@@ -9,7 +11,8 @@ namespace VolleyDuel.UI
     /// net (positive = toward it), so a player on the right side pushes left to approach.
     /// Keyboard: A/D or arrows move, W/S up/down, J or Space HIT, K JUMP, L FEINT, U TRICK, I Amped TRICK,
     /// O FINISHER/DENY. Gamepad: left stick, South HIT, West JUMP, East FEINT, North TRICK, right
-    /// shoulder Amp, either trigger FINISHER.
+    /// shoulder Amp, either trigger FINISHER. Uses the Input System when its backend is on, and the
+    /// legacy Input Manager otherwise (keyboard only), so input works under either project setting.
     /// </summary>
     public sealed class InputCollector
     {
@@ -20,6 +23,7 @@ namespace VolleyDuel.UI
         {
             float x = 0f, y = 0f;
             InputButtons b = InputButtons.None;
+#if ENABLE_INPUT_SYSTEM
             Keyboard kb = Keyboard.current;
             if (kb != null)
             {
@@ -47,6 +51,18 @@ namespace VolleyDuel.UI
                 if (pad.rightShoulder.isPressed) b |= InputButtons.Amp;
                 if (pad.leftTrigger.isPressed || pad.rightTrigger.isPressed) b |= InputButtons.Finisher;
             }
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) x -= 1f;
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) x += 1f;
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) y += 1f;
+            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) y -= 1f;
+            if (Input.GetKey(KeyCode.J) || Input.GetKey(KeyCode.Space)) b |= InputButtons.Hit;
+            if (Input.GetKey(KeyCode.K)) b |= InputButtons.Jump;
+            if (Input.GetKey(KeyCode.L)) b |= InputButtons.Feint;
+            if (Input.GetKey(KeyCode.U)) b |= InputButtons.Trick;
+            if (Input.GetKey(KeyCode.I)) b |= InputButtons.Trick | InputButtons.Amp;
+            if (Input.GetKey(KeyCode.O)) b |= InputButtons.Finisher;
+#endif
             if (Touch != null) Touch.Read(ref x, ref y, ref b);
             if ((b & InputButtons.Amp) != 0 && (b & InputButtons.Trick) == 0) b &= ~InputButtons.Amp;
 

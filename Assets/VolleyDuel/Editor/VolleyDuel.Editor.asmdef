@@ -6,10 +6,8 @@
         "VolleyDuel.Sim",
         "VolleyDuel.Presentation",
         "VolleyDuel.UI",
-        "Unity.TextMeshPro",
         "Unity.RenderPipelines.Core.Runtime",
-        "Unity.RenderPipelines.Universal.Runtime",
-        "Unity.TextMeshPro.Editor"
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [
         "Editor"

@@ -7,6 +7,7 @@ namespace UnityEngine.EventSystems
     public abstract class UIBehaviour : MonoBehaviour { }
     public class EventSystem : UIBehaviour { }
     public abstract class BaseInputModule : UIBehaviour { }
+    public class StandaloneInputModule : BaseInputModule { }
 
     public class PointerEventData
     {
@@ -35,6 +36,25 @@ namespace UnityEngine.UI
     public abstract class MaskableGraphic : Graphic { }
 
     public class Image : MaskableGraphic { }
+
+    public class Text : MaskableGraphic
+    {
+        public Font font { get; set; }
+        public string text { get; set; }
+        public int fontSize { get; set; }
+        public TextAnchor alignment { get; set; }
+        public FontStyle fontStyle { get; set; }
+        public bool supportRichText { get; set; }
+        public HorizontalWrapMode horizontalOverflow { get; set; }
+        public VerticalWrapMode verticalOverflow { get; set; }
+    }
+
+    public class InputField : Selectable
+    {
+        public Text textComponent { get; set; }
+        public Graphic placeholder { get; set; }
+        public string text { get; set; }
+    }
 
     public struct ColorBlock
     {
@@ -143,43 +163,4 @@ namespace UnityEngine.InputSystem.Controls
 namespace UnityEngine.InputSystem.UI
 {
     public class InputSystemUIInputModule : UnityEngine.EventSystems.BaseInputModule { }
-}
-
-namespace TMPro
-{
-    using UnityEngine.UI;
-
-    public enum TextAlignmentOptions { TopLeft = 257, Top = 258, Left = 513, Center = 514, Right = 516, BottomLeft = 1025, Bottom = 1026 }
-
-    [System.Flags]
-    public enum FontStyles { Normal = 0, Bold = 1, Italic = 2 }
-
-    public enum TextWrappingModes { NoWrap = 0, Normal = 1 }
-
-    public abstract class TMP_Text : MaskableGraphic
-    {
-        public string text { get; set; }
-        public float fontSize { get; set; }
-        public TextAlignmentOptions alignment { get; set; }
-        public FontStyles fontStyle { get; set; }
-        public TextWrappingModes textWrappingMode { get; set; }
-        public float alpha { get; set; }
-    }
-
-    public class TextMeshProUGUI : TMP_Text { }
-
-    public class TMP_InputField : Selectable
-    {
-        public enum ContentType { Standard, Autocorrected, IntegerNumber, DecimalNumber, Alphanumeric }
-        public RectTransform textViewport { get; set; }
-        public TMP_Text textComponent { get; set; }
-        public Graphic placeholder { get; set; }
-        public ContentType contentType { get; set; }
-        public string text { get; set; }
-    }
-
-    public static class TMP_PackageResourceImporter
-    {
-        public static void ImportResources(bool importEssentials, bool importExamples, bool interactive) { }
-    }
 }

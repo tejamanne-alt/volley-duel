@@ -296,3 +296,40 @@ over 4 frames.
   seeds.
 - Stray input packets from the old session are ignored by a plausibility guard on frame numbers.
   There is a test for it, and it fails without the guard. Desync repair is the last line of defense.
+
+### U5. Built-in uGUI text for the graybox, not TextMeshPro (for now)
+- Options considered:
+  - (a) TextMeshPro, with the editor importing TMP Essentials automatically.
+  - (b) uGUI `Text` with the engine's built-in font.
+- Without the essentials, TMP labels are blank on device. The import API is not guaranteed
+  across uGUI versions.
+- Chose (b): text shows on the first build with no setup step. TMP comes back with the HUD art
+  pass, when fonts are chosen anyway.
+
+### U6. The game starts itself in any scene
+- First iPhone run: the phone showed Unity's default sky in portrait. That was the empty scene
+  Unity builds when the build list is empty; `Main.unity` had never been created. Separately,
+  the UI asmdef was missing its `UnityEngine.UI` reference.
+- `GameBootstrap` (`RuntimeInitializeOnLoadMethod`) now creates `GameApp` in whatever scene loads.
+  `GameApp` adds its own camera, light and event system, and picks the input module that matches
+  Active Input Handling.
+- If startup throws, the phone shows the error (IMGUI, no assets needed) instead of a blank screen.
+- Graybox materials load from Resources, where the editor creates them with the active pipeline's
+  shaders. Shader.Find alone returns null on device for unreferenced shaders.
+- `scripts/asmdef_check.py` (in `check.sh`) catches missing assembly references. The stub compile
+  check cannot see asmdef boundaries.
+
+### U7. App identity and signing live in code
+`BuildIdentity` applies these on every editor load and before every build:
+- App id `com.astradite.volleyduel` on iOS and Android, and company "Astradite".
+- iOS automatic signing with the Teja Manne team.
+
+Unity needs the 10-character Team ID, and Xcode only shows the team name. The ID in brackets
+after an Apple Development certificate's name is the person's, not the team's. So the editor
+looks the ID up:
+1. From the OU field of the "Apple Development: Teja Manne (BX42AX95QW)" certificate in the
+   keychain, falling back to any "Apple Development: Teja Manne" certificate.
+2. Failing that, from Unity's Preferences.
+
+`BuildIdentity.AppleTeamId` pins the ID explicitly. The iOS postprocess also sets
+`DEVELOPMENT_TEAM` and automatic signing on every Xcode target.

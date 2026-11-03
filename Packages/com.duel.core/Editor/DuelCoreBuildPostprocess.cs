@@ -104,6 +104,19 @@ namespace Duel.Core.Editor
             project.SetBuildProperty(main, "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES", "YES");
             project.SetBuildProperty(framework, "ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES", "NO");
             project.AddFrameworkToProject(framework, "CoreBluetooth.framework", false);
+
+            // Automatic signing with the project's team on every target, so Xcode never stops at "requires
+            // a provisioning profile". Unity only sets the team on the app target.
+            string team = PlayerSettings.iOS.appleDeveloperTeamID;
+            if (!string.IsNullOrEmpty(team))
+            {
+                foreach (string guid in new[] { main, framework, project.TargetGuidByName(PBXProject.GetUnityTestTargetName()) })
+                {
+                    if (string.IsNullOrEmpty(guid)) continue;
+                    project.SetBuildProperty(guid, "DEVELOPMENT_TEAM", team);
+                    project.SetBuildProperty(guid, "CODE_SIGN_STYLE", "Automatic");
+                }
+            }
             project.WriteToFile(projectPath);
         }
     }

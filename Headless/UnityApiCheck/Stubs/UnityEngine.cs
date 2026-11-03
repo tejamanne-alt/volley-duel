@@ -10,6 +10,8 @@ namespace UnityEngine
     {
         public string name { get; set; }
         public static void Destroy(Object obj) { }
+        public static void DestroyImmediate(Object obj) { }
+        public static void DontDestroyOnLoad(Object target) { }
         public static T FindAnyObjectByType<T>() where T : Object => null;
         public static implicit operator bool(Object o) => !ReferenceEquals(o, null);
         public static bool operator ==(Object a, Object b) => ReferenceEquals(a, b);
@@ -191,8 +193,11 @@ namespace UnityEngine
         public static bool autorotateToLandscapeRight { get; set; }
     }
 
+    public enum RuntimePlatform { OSXEditor = 0, OSXPlayer = 1, WindowsPlayer = 2, WindowsEditor = 7, IPhonePlayer = 8, Android = 11, LinuxEditor = 16 }
+
     public static class Application
     {
+        public static RuntimePlatform platform => RuntimePlatform.OSXEditor;
         public static int targetFrameRate { get; set; }
         public static string persistentDataPath => "";
         public static string dataPath => "";
@@ -217,11 +222,59 @@ namespace UnityEngine
         public static void Log(object message) { }
         public static void LogError(object message) { }
         public static void LogWarning(object message) { }
+        public static void LogException(Exception exception) { }
     }
 
     public class TextAsset : Object { public string text => ""; }
 
-    public static class Resources { public static T Load<T>(string path) where T : Object => null; }
+    public static class Resources
+    {
+        public static T Load<T>(string path) where T : Object => null;
+        public static T GetBuiltinResource<T>(string path) where T : Object => null;
+    }
+
+    public enum FontStyle { Normal, Bold, Italic, BoldAndItalic }
+
+    public enum TextAnchor { UpperLeft, UpperCenter, UpperRight, MiddleLeft, MiddleCenter, MiddleRight, LowerLeft, LowerCenter, LowerRight }
+
+    public enum HorizontalWrapMode { Wrap, Overflow }
+
+    public enum VerticalWrapMode { Truncate, Overflow }
+
+    public sealed class Font : Object
+    {
+        public static Font CreateDynamicFontFromOSFont(string[] fontnames, int size) => null;
+    }
+
+    public enum RuntimeInitializeLoadType { AfterSceneLoad, BeforeSceneLoad, AfterAssembliesLoaded, BeforeSplashScreen, SubsystemRegistration }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class RuntimeInitializeOnLoadMethodAttribute : Attribute
+    {
+        public RuntimeInitializeOnLoadMethodAttribute(RuntimeInitializeLoadType loadType) { }
+    }
+
+    public enum KeyCode { Space = 32, A = 97, D = 100, I = 105, J = 106, K = 107, L = 108, O = 111, S = 115, U = 117, W = 119, UpArrow = 273, DownArrow = 274, RightArrow = 275, LeftArrow = 276 }
+
+    public static class Input { public static bool GetKey(KeyCode key) => false; }
+
+    public class GUIStyleState { public Color textColor { get; set; } }
+
+    public class GUIStyle
+    {
+        public GUIStyle(GUIStyle other) { }
+        public int fontSize { get; set; }
+        public bool wordWrap { get; set; }
+        public GUIStyleState normal => null;
+    }
+
+    public sealed class GUISkin : Object { public GUIStyle label => null; }
+
+    public static class GUI
+    {
+        public static GUISkin skin => null;
+        public static void Label(Rect position, string text, GUIStyle style) { }
+    }
 
     public class ScriptableObject : Object { public static T CreateInstance<T>() where T : ScriptableObject => null; }
 
@@ -230,7 +283,9 @@ namespace UnityEngine
     public class Material : Object
     {
         public Material(Shader shader) { }
+        public Material(Material source) { }
         public Color color { get; set; }
+        public Shader shader { get; set; }
     }
 
     public class Renderer : Component
@@ -325,7 +380,11 @@ namespace UnityEngine.Rendering
 {
     public enum ShadowCastingMode { Off, On, TwoSided, ShadowsOnly }
     public abstract class RenderPipelineAsset : ScriptableObject { }
-    public static class GraphicsSettings { public static RenderPipelineAsset defaultRenderPipeline { get; set; } }
+    public static class GraphicsSettings
+    {
+        public static RenderPipelineAsset defaultRenderPipeline { get; set; }
+        public static RenderPipelineAsset currentRenderPipeline => null;
+    }
 }
 
 namespace UnityEngine.Rendering.Universal
