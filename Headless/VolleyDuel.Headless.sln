@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolleyDuel.Tests", "VolleyD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.Net", "Duel.Core.Net\Duel.Core.Net.csproj", "{3066F63C-BF17-4BF2-8D91-2C55A66DC679}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.Transport.Lan", "Duel.Core.Transport.Lan\Duel.Core.Transport.Lan.csproj", "{FFE419A7-DF25-4CA6-B3DB-7EB9C9468010}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{3066F63C-BF17-4BF2-8D91-2C55A66DC679}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3066F63C-BF17-4BF2-8D91-2C55A66DC679}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3066F63C-BF17-4BF2-8D91-2C55A66DC679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFE419A7-DF25-4CA6-B3DB-7EB9C9468010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFE419A7-DF25-4CA6-B3DB-7EB9C9468010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFE419A7-DF25-4CA6-B3DB-7EB9C9468010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFE419A7-DF25-4CA6-B3DB-7EB9C9468010}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

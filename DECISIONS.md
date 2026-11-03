@@ -209,3 +209,17 @@ seeded and reproducible. A match counts as finished only when both phones confir
 at the first checkpoint after the final whistle. Gate: zero desyncs, every match finished
 identically, rollback p95 at most 4 frames. Results are in SPIKES.md. The 30-match device soak
 over real BLE still needs two phones.
+
+### N5. LAN: one UDP socket, reliable control channel, pluggable discovery **review**
+- The transport runs over UDP with non-blocking sockets pumped from `Poll`, with no threads.
+  Inputs are plain datagrams; control messages get sequence numbers, cumulative acks and
+  retransmission. It is tested on loopback with 30% loss each way.
+- Discovery options considered:
+  - (a) UDP broadcast beacons. Works on Android, desktop and the editor, but iOS 14.5+ requires
+    Apple's `com.apple.developer.networking.multicast` entitlement for broadcast.
+  - (b) Bonjour. Needs only Info.plist keys and the Local Network prompt, but a native plugin
+    per platform.
+  - (c) Join by address. The host shows "ip:port", and later a court code or QR code.
+- Shipped (a) and (c) behind `ILanDiscovery`. On iOS, LAN joins by address until (b) lands.
+  **Recommendation: (b) for iOS rather than the entitlement.** Per the contract, the multicast
+  entitlement will not be requested without asking.

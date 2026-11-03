@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>Duel.Core.Transport.Lan</AssemblyName>
+    <RootNamespace>Duel.Core.Transport.Lan</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(CorePackage)Runtime/Transport.LAN/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Duel.Core.Net/Duel.Core.Net.csproj" />
+  </ItemGroup>
+</Project>
