@@ -82,7 +82,7 @@ Tests use NUnit 3 (same as the Unity Test Framework) so EditMode tests run in bo
 | Determinism: 10,000-frame golden replay hash (EditMode; device runs pending) | tests + `Tools/BalanceLab golden` | automated here; devices need a human |
 | Sim version hash matches sim sources | `Headless/Gates` | automated |
 | Balance Lab: pairings 45–55%, receiver wins 55–60% of rallies, tiers monotonic | `Tools/BalanceLab gate` | automated |
-| Netcode: rollback soak over a simulated lossy link, zero desyncs | `Packages/com.duel.core/Tests` | automated; 30-match BLE soak needs devices |
+| Netcode: rollback soak over a simulated lossy link, zero desyncs | `Packages/com.duel.core/Tests`, `NetplayTests`, `Tools/BalanceLab netsoak` | automated; 30-match device BLE soak needs phones |
 | Performance, thermal, BLE RTT, look-dev slice | devices | human |
 
 Anything judged by eye (feel, ball readability, visuals, animation) ends at a human review

@@ -16,5 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="../VolleyDuel.Sim/VolleyDuel.Sim.csproj" />
     <ProjectReference Include="../VolleyDuel.AI/VolleyDuel.AI.csproj" />
+    <ProjectReference Include="../Duel.Core.Net/Duel.Core.Net.csproj" />
   </ItemGroup>
 </Project>

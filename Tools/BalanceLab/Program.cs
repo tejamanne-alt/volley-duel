@@ -19,6 +19,7 @@ namespace VolleyDuel.BalanceLab
     ///   tiers  --matches 200                           (CPU win rates rise with each tier)
     ///   golden --frames 10000 [--write]                (determinism golden replay)
     ///   bench                                          (step and 8-frame resimulation cost)
+    ///   netsoak --matches 30                           (full matches through rollback over a simulated BLE link)
     /// </summary>
     public static class Program
     {
@@ -37,8 +38,9 @@ namespace VolleyDuel.BalanceLab
                 case "golden": return Golden.Run(tables, cpu, opts);
                 case "bench": return Bench.Run(tables, cpu, opts);
                 case "trace": return Trace.Run(tables, cpu, opts);
+                case "netsoak": return NetSoak.Run(tables, cpu, opts);
                 default:
-                    Console.WriteLine("commands: match, lab, gate, tiers, golden, bench, trace");
+                    Console.WriteLine("commands: match, lab, gate, tiers, golden, bench, trace, netsoak");
                     return command == "help" ? 0 : 2;
             }
         }

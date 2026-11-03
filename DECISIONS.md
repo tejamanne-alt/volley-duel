@@ -179,3 +179,33 @@ estimates when a spike at it would arrive, and pre-times the dig with 2.5× its 
   choice lock) is a human-reading weapon the CPU barely exploits. Both are cases where CPU play is
   a weak proxy, as the spec warns; the next lever is human playtests plus CPU defensive reads.
 - Latest gate run (200 matches per pairing, Legend): see SPIKES.md.
+
+## Netcode
+
+### N1. Inputs: one 20-byte packet per tick, timed gap resend after the ack
+- Options considered: (a) cap the window at ack + 8 so the remote never sees a gap; (b) always
+  send the newest 8 inputs, and resend the window after the remote's ack once those inputs have
+  gone unacknowledged for longer than a round trip.
+- Chose (b). (a) limits throughput to 8 frames per round trip, so it stalled every match above
+  133 ms RTT. (b) costs one 20-byte packet per tick in steady state, plus at most two more while
+  a gap is open. The receiver already stores inputs out of order, and confirmation advances as
+  soon as the gap fills.
+
+### N2. RTT comes from input acks, Karn-style
+RTT is sampled from the first ack of each input frame. A sample is skipped when the frames it
+covers needed a gap resend, or sat in the window through a stall or pause. After a 4 s dropout,
+counting those samples raised the RTT estimate to about half a second, which slowed recovery to
+a crawl. Resend timing and time sync both read this estimate.
+
+### N3. Time sync from the newest window only
+Each newest input packet tells the receiver where the sender is: its frame plus the input delay.
+Resent windows and late, reordered packets are ignored for this. Every 30 ticks, a peer that
+averaged more than one frame ahead waits one frame. Beyond the 8-frame rollback budget, the
+leading peer stalls.
+
+### N4. Soak harness and gate
+`BalanceLab netsoak` plays full Legend CPU matches as two phones over `InMemoryLink`, which is
+seeded and reproducible. A match counts as finished only when both phones confirm the same hash
+at the first checkpoint after the final whistle. Gate: zero desyncs, every match finished
+identically, rollback p95 at most 4 frames. Results are in SPIKES.md. The 30-match device soak
+over real BLE still needs two phones.
