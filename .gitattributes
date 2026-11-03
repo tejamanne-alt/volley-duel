@@ -29,3 +29,4 @@
 *.ttf  binary
 *.otf  binary
 *.vdr  binary
+*.replay binary

@@ -1,0 +1,16 @@
+{
+    "name": "Duel.Core.Transport.LAN",
+    "rootNamespace": "Duel.Core.Transport.LAN",
+    "references": [
+        "Duel.Core.Net"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

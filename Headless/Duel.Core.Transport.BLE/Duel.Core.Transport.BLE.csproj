@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>Duel.Core.Transport.Lan</AssemblyName>
-    <RootNamespace>Duel.Core.Transport.Lan</RootNamespace>
+    <AssemblyName>Duel.Core.Transport.BLE</AssemblyName>
+    <RootNamespace>Duel.Core.Transport.BLE</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(CorePackage)Runtime/Transport.LAN/**/*.cs" />
+    <Compile Include="$(CorePackage)Runtime/Transport.BLE/**/*.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Duel.Core.Net/Duel.Core.Net.csproj" />

@@ -1,0 +1,13 @@
+{
+  "name": "com.duel.core",
+  "version": "0.1.0",
+  "displayName": "Duel Core",
+  "description": "Game-agnostic 1v1 duel framework: deterministic Q32.32 sim, rollback netcode, BLE and LAN transports, CPU tier framework and Balance Lab plumbing. No game rules live here.",
+  "unity": "6000.3",
+  "keywords": [
+    "deterministic",
+    "rollback",
+    "netcode",
+    "ble"
+  ]
+}

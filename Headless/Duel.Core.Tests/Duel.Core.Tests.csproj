@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="../Duel.Core.Sim/Duel.Core.Sim.csproj" />
     <ProjectReference Include="../Duel.Core.Net/Duel.Core.Net.csproj" />
-    <ProjectReference Include="../Duel.Core.Transport.Lan/Duel.Core.Transport.Lan.csproj" />
+    <ProjectReference Include="../Duel.Core.Transport.LAN/Duel.Core.Transport.LAN.csproj" />
+    <ProjectReference Include="../Duel.Core.Transport.BLE/Duel.Core.Transport.BLE.csproj" />
   </ItemGroup>
 </Project>

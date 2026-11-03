@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Duel.Core.Net;
 using Duel.Core.Sim;
-using Duel.Core.Transport.Lan;
+using Duel.Core.Transport.LAN;
 using NUnit.Framework;
 
 namespace Duel.Core.Tests

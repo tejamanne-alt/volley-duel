@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using Duel.Core.Net;
 
-namespace Duel.Core.Transport.Lan
+namespace Duel.Core.Transport.LAN
 {
     /// <summary>
     /// LAN transport, the second after BLE. Each phone uses one UDP socket and there is no server. Input

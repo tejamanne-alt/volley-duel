@@ -223,3 +223,31 @@ over real BLE still needs two phones.
 - Shipped (a) and (c) behind `ILanDiscovery`. On iOS, LAN joins by address until (b) lands.
   **Recommendation: (b) for iOS rather than the entitlement.** Per the contract, the multicast
   entitlement will not be requested without asking.
+
+### N6. BLE: thin native bridges, framing and policy in C# **review**
+- The C# side (`BleTransport`) owns everything testable: the advert format, control
+  fragmentation to the negotiated ATT payload, reassembly, state, and the event wire format shared
+  with the native code. It is tested headless over `LoopbackBleBridge`, including a handshake and
+  rollback session at the default 23-byte MTU.
+- iOS (`Plugins/iOS/DuelBle.swift`) calls a C function pointer on its CoreBluetooth queue. The C#
+  callback only copies bytes into a lock-free `ConcurrentQueue`, which `Poll` drains on the main
+  thread. Android (`Plugins/Android/DuelBle.kt`) queues encoded events on a `ConcurrentLinkedQueue`,
+  and C# drains them with one JNI call per frame.
+- Court code: iOS peripherals can only advertise a local name, so the code goes there
+  (`VD-AB12`). Android cannot set a local name without renaming the phone, so the code goes in
+  service data in the scan response. Scanners accept either.
+- Control fragments are one ATT payload each (no long writes), so Android hosts need no
+  prepared-write handling.
+- Verification so far:
+  - The Kotlin compiles cleanly against the Android 14 framework classes (Robolectric
+    `android-all`, Kotlin 1.9.24), and `javap` shows the JNI signatures the C# calls.
+  - The Swift could not be compiled here (no Apple SDK).
+  - Neither bridge has run on a radio. That is the P0 spike, which needs two phones.
+- Not done yet: the L2CAP option (behind the same interface, kept only if it measures better), and
+  requesting high priority from an Android peripheral (it can only reconnect as a client to do so).
+
+### N7. Unity packages and versions **review**
+`Packages/manifest.json` pins Input System 1.14, URP 17.3, Test Framework 1.5 and uGUI 2.0 for
+Unity 6000.3. Unity rewrites core-package versions to the ones the editor ships, so a mismatch fixes
+itself on first open. `ProjectVersion.txt` says 6000.3.0f1; any 6.3 LTS patch works. Unity's NUnit is
+a 3.5 fork, so tests use only asserts that 3.5 has. The headless build runs NUnit 3.13.

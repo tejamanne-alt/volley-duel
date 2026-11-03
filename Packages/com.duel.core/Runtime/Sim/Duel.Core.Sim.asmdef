@@ -1,0 +1,14 @@
+{
+    "name": "Duel.Core.Sim",
+    "rootNamespace": "Duel.Core.Sim",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

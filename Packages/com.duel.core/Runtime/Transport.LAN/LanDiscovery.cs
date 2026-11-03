@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using Duel.Core.Net;
 
-namespace Duel.Core.Transport.Lan
+namespace Duel.Core.Transport.LAN
 {
     /// <summary>What a hosting phone advertises on the LAN.</summary>
     public struct LanBeacon

@@ -1,0 +1,16 @@
+{
+    "name": "Duel.Core.Transport.BLE",
+    "rootNamespace": "Duel.Core.Transport.BLE",
+    "references": [
+        "Duel.Core.Net"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

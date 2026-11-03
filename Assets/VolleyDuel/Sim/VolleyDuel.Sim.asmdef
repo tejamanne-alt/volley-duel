@@ -1,0 +1,16 @@
+{
+    "name": "VolleyDuel.Sim",
+    "rootNamespace": "VolleyDuel.Sim",
+    "references": [
+        "Duel.Core.Sim"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
