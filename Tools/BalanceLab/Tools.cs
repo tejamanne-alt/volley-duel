@@ -116,7 +116,14 @@ namespace VolleyDuel.BalanceLab
                 events.Clear();
                 s = sim.Step(s, i0, i1, events);
             }
-            // Step cost alone (no CPU).
+            // Warm up the JIT, then measure step cost alone (no CPU) and allocations per step.
+            for (int f = 0; f < Math.Min(2000, states.Count); f++)
+            {
+                events.Clear();
+                sim.Step(states[f], inputs[f].Item1, inputs[f].Item2, events);
+            }
+            long allocBefore = GC.GetAllocatedBytesForCurrentThread();
+            int gcBefore = GC.CollectionCount(0);
             var sw = Stopwatch.StartNew();
             int steps = 0;
             for (int rep = 0; rep < 3; rep++)
@@ -129,10 +136,12 @@ namespace VolleyDuel.BalanceLab
                 }
             }
             sw.Stop();
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - allocBefore;
+            int gcs = GC.CollectionCount(0) - gcBefore;
             double usPerStep = sw.Elapsed.TotalMilliseconds * 1000 / steps;
-            // Worst 8-frame window, as a rollback would resimulate it (restore + 8 steps + hash).
-            double worst = 0;
+            // Every 8-frame window, as a rollback would resimulate it (restore + 8 steps + serialize).
             var buffer = new byte[GameState.MaxBytes];
+            var windows = new List<double>();
             for (int f = 0; f + 8 < states.Count; f += 7)
             {
                 var w = Stopwatch.StartNew();
@@ -144,11 +153,14 @@ namespace VolleyDuel.BalanceLab
                 }
                 sim.Serialize(r, buffer);
                 w.Stop();
-                if (w.Elapsed.TotalMilliseconds > worst) worst = w.Elapsed.TotalMilliseconds;
+                windows.Add(w.Elapsed.TotalMilliseconds);
             }
+            windows.Sort();
+            double P(double q) => windows[Math.Min(windows.Count - 1, (int)(q * windows.Count))];
+            Console.WriteLine("allocations: {0} bytes over {1} steps, {2} gen-0 collections", allocated, steps, gcs);
+            Console.WriteLine("resimulate 8 frames over {0} windows: p50 {1:F3} ms, p99 {2:F3} ms, p99.9 {3:F3} ms, worst {4:F3} ms (desktop x64, shared CPU)", windows.Count, P(0.5), P(0.99), P(0.999), windows[windows.Count - 1]);
             int bytes = sim.Serialize(s, buffer);
             Console.WriteLine("step: {0:F2} us average over {1} steps", usPerStep, steps);
-            Console.WriteLine("resimulate 8 frames: {0:F3} ms worst window (desktop x64)", worst);
             Console.WriteLine("state: {0} bytes serialized (budget {1})", bytes, GameState.MaxBytes);
             return 0;
         }
@@ -206,7 +218,10 @@ namespace VolleyDuel.BalanceLab
                 .Append(s.Score0).Append(',').Append(s.Score1).Append(',').Append(s.SetsWon0).Append(',').Append(s.SetsWon1).Append(',')
                 .Append(a.Surge).Append(',').Append(b.Surge).Append(',').Append(a.Stamina.RoundToInt()).Append(',').Append(b.Stamina.RoundToInt()).Append(',')
                 .Append(s.Server).Append(',').Append(s.HitStop).Append(',')
-                .Append((int)a.Ring).Append(',').Append(a.RingCenter - s.World).Append(',').Append((int)b.Ring).Append(',').Append(b.RingCenter - s.World)
+                .Append((int)a.Ring).Append(',').Append(a.RingCenter - s.World).Append(',').Append((int)b.Ring).Append(',').Append(b.RingCenter - s.World).Append(',')
+                .Append(F(a.RingPoint.X)).Append(',').Append(F(a.RingPoint.Y)).Append(',').Append(F(b.RingPoint.X)).Append(',').Append(F(b.RingPoint.Y)).Append(',')
+                .Append((int)a.CommitKind).Append(',').Append((int)b.CommitKind).Append(',').Append(a.Charging ? 1 : 0).Append(',').Append(b.Charging ? 1 : 0).Append(',')
+                .Append(a.RingPerfect).Append(',').Append(a.RingGood).Append(',').Append(b.RingPerfect).Append(',').Append(b.RingGood)
                 .Append(']');
             for (int i = 0; i < ev.Count; i++)
             {
@@ -227,13 +242,32 @@ namespace VolleyDuel.BalanceLab
             Fighter(sb, f1);
             sb.Append("],\"court\":\"").Append(tables.Courts[setup.Court].Name).Append("\",");
             sb.Append("\"net\":").Append(F(tables.Tuning.Court.NetHeight)).Append(",\"half\":").Append(F(tables.Tuning.Court.HalfLength)).Append(',');
-            sb.Append("\"frame\":[\"world\",\"phase\",\"bx\",\"by\",\"bmode\",\"ax\",\"ay\",\"aact\",\"ajump\",\"cx\",\"cy\",\"cact\",\"cjump\",\"s0\",\"s1\",\"sets0\",\"sets1\",\"surge0\",\"surge1\",\"stam0\",\"stam1\",\"server\",\"hitstop\",\"ring0\",\"ringIn0\",\"ring1\",\"ringIn1\"],");
+            sb.Append("\"frame\":[\"world\",\"phase\",\"bx\",\"by\",\"bmode\",\"ax\",\"ay\",\"aact\",\"ajump\",\"cx\",\"cy\",\"cact\",\"cjump\",\"s0\",\"s1\",\"sets0\",\"sets1\",\"surge0\",\"surge1\",\"stam0\",\"stam1\",\"server\",\"hitstop\",\"ring0\",\"ringIn0\",\"ring1\",\"ringIn1\",\"rx0\",\"ry0\",\"rx1\",\"ry1\",\"commit0\",\"commit1\",\"charge0\",\"charge1\",\"perfect0\",\"good0\",\"perfect1\",\"good1\"],");
             sb.Append("\"event\":[\"frame\",\"type\",\"actor\",\"a\",\"b\",\"x\",\"y\"],");
             sb.Append("\"eventTypes\":[");
             string[] names = Enum.GetNames(typeof(VolleyEvent));
             for (int i = 0; i < names.Length; i++) sb.Append(i == 0 ? "" : ",").Append('"').Append(names[i]).Append('"');
-            sb.Append("],\"frames\":[").Append(frames).Append("],\"events\":[").Append(events).Append("]}");
+            sb.Append("],\"callouts\":[");
+            for (int i = 0; i < (int)Callout.Count; i++)
+            {
+                ImpactRecipe r = tables.Tuning.Impacts.For((Callout)i);
+                sb.Append(i == 0 ? "" : ",").Append('"').Append(r != null ? r.CalloutText : "").Append('"');
+            }
+            sb.Append(']');
+            Names(sb, "actions", typeof(FighterAction));
+            Names(sb, "jumps", typeof(JumpKind));
+            Names(sb, "touches", typeof(TouchKind));
+            Names(sb, "phases", typeof(MatchPhase));
+            sb.Append(",\"frames\":[").Append(frames).Append("],\"events\":[").Append(events).Append("]}");
             return sb.ToString();
+        }
+
+        static void Names(StringBuilder sb, string key, Type enumType)
+        {
+            sb.Append(",\"").Append(key).Append("\":[");
+            string[] names = Enum.GetNames(enumType);
+            for (int i = 0; i < names.Length; i++) sb.Append(i == 0 ? "" : ",").Append('"').Append(names[i]).Append('"');
+            sb.Append(']');
         }
 
         static void Fighter(StringBuilder sb, FighterDefinition f)

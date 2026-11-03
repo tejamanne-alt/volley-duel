@@ -1,0 +1,594 @@
+<title>Volley Duel Replay Viewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:ital,wght@0,600;0,800;1,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: a court-side broadcast monitor. The canvas is the screen, transport controls sit under
+     it like a deck, and frame data and the event log run beside it on wide screens and below it on
+     phones. Single dark look by choice: it is an arena at night. */
+  :root {
+    --night: #0d1220;
+    --panel: #151c2e;
+    --rule: #26304a;
+    --chalk: #e9edf5;
+    --muted: #8d97ad;
+    --ball: #ffd23f;
+    --perfect: #ffc21a;
+    --miss: #ff6b5b;
+    --display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+    --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    color-scheme: dark;
+  }
+  html, body { background: var(--night); color: var(--chalk); }
+  body {
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.45;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 18px 28px;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 14px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+  h1 {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 800;
+    font-size: clamp(28px, 4vw, 40px);
+    letter-spacing: 0.01em;
+    margin: 0;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .match { color: var(--muted); font-size: 15px; min-width: 0; }
+  .match b { color: var(--chalk); font-weight: 600; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+  @media (max-width: 900px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+  .screen { position: relative; background: #000; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+  canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; max-width: 100%; }
+  .deck {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+    padding: 10px 12px; background: var(--panel); border-top: 1px solid var(--rule);
+  }
+  button, select, .file {
+    font: 600 14px var(--body);
+    color: var(--chalk);
+    background: #1e2740;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    min-height: 34px;
+  }
+  button:hover, select:hover, .file:hover { border-color: var(--muted); }
+  button:focus-visible, select:focus-visible, input:focus-visible, .file:focus-within { outline: 2px solid var(--ball); outline-offset: 2px; }
+  .play { min-width: 76px; background: var(--ball); color: #1a1505; border-color: var(--ball); }
+  .scrub { flex: 1 1 220px; min-width: 0; display: grid; gap: 4px; }
+  .scrub input { width: 100%; accent-color: var(--ball); }
+  .marks { position: relative; height: 8px; }
+  .marks i { position: absolute; top: 0; width: 2px; height: 8px; border-radius: 1px; }
+  .clock { font: 600 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; min-width: 128px; text-align: right; }
+  .file input { display: none; }
+  aside { display: grid; gap: 14px; min-width: 0; }
+  .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; min-width: 0; }
+  .card h2 {
+    font: 800 13px var(--display); letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 8px;
+  }
+  dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 12px; margin: 0; font: 13px var(--mono); font-variant-numeric: tabular-nums; }
+  dt { color: var(--muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  .log { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font: 12.5px var(--mono); max-height: 300px; overflow-y: auto; }
+  .log li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; padding: 2px 0; color: var(--muted); }
+  .log li b { color: var(--chalk); font-weight: 600; }
+  .log li.now b { color: var(--ball); }
+  .note { color: var(--muted); font-size: 13.5px; max-width: 68ch; }
+  .note code { font: 12.5px var(--mono); color: var(--chalk); }
+  .keys { font: 12px var(--mono); color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Volley Duel Replay</h1>
+    <div class="match" id="match">Loading the trace…</div>
+  </header>
+
+  <div class="stage">
+    <div class="screen">
+      <canvas id="view" width="1280" height="720" aria-label="Side view of the match replay"></canvas>
+      <div class="deck">
+        <button class="play" id="play" type="button">Play</button>
+        <button id="back" type="button" title="Back one frame (comma)">◀ 1f</button>
+        <button id="fwd" type="button" title="Forward one frame (period)">1f ▶</button>
+        <select id="speed" aria-label="Playback speed">
+          <option value="0.25">0.25×</option>
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="2">2×</option>
+        </select>
+        <div class="scrub">
+          <input id="seek" type="range" min="0" max="0" value="0" step="1" aria-label="Frame">
+          <div class="marks" id="marks"></div>
+        </div>
+        <span class="clock" id="clock">f 0 · 0:00.00</span>
+        <label class="file" title="Open a trace from BalanceLab trace">Open trace…<input id="open" type="file" accept=".json,application/json"></label>
+      </div>
+    </div>
+
+    <aside>
+      <section class="card">
+        <h2>Frame data</h2>
+        <dl id="data"></dl>
+      </section>
+      <section class="card">
+        <h2>Events</h2>
+        <ul class="log" id="log"></ul>
+      </section>
+    </aside>
+  </div>
+
+  <p class="note">
+    Every frame here is the deterministic sim's own output (Q32.32, 60 Hz), exported by
+    <code>dotnet run --project Headless/VolleyDuel.BalanceLab -- trace</code>. This is not a
+    Unity build: fighters are drawn as poses keyed to their sim action, rings close on the contact
+    frame, and the camera follows the dueling-camera rules (7–15 m, net always in frame). Gold
+    rings mark the Perfect window.
+  </p>
+  <p class="keys">Space play/pause · , and . step a frame · [ and ] change speed · scrub with the slider (point markers show who scored)</p>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const cv = document.getElementById("view");
+  const ctx = cv.getContext("2d");
+  const ui = {
+    play: document.getElementById("play"), back: document.getElementById("back"), fwd: document.getElementById("fwd"),
+    speed: document.getElementById("speed"), seek: document.getElementById("seek"), marks: document.getElementById("marks"),
+    clock: document.getElementById("clock"), open: document.getElementById("open"), match: document.getElementById("match"),
+    data: document.getElementById("data"), log: document.getElementById("log"),
+  };
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let T = null;          // trace
+  let F = null;          // field index by name
+  let E = null;          // event field index by name
+  let byFrame = [];      // events grouped by frame index
+  let cur = 0, playing = false, speed = 1, acc = 0, last = 0;
+  const cam = { x: 0, w: 11 };
+  const fx = [];         // live flashes
+  let callout = { text: "", age: 99 };
+  let trailPts = [];
+
+  function idx(names) { const m = {}; names.forEach((n, i) => m[n] = i); return m; }
+  const v = (fr, name) => fr[F[name]];
+  const evName = (t) => T.eventTypes[t] || ("#" + t);
+
+  function load(trace) {
+    T = trace;
+    F = idx(T.frame);
+    E = idx(T.event);
+    byFrame = new Array(T.frames.length);
+    for (const e of T.events) {
+      const f = e[E.frame];
+      (byFrame[f] || (byFrame[f] = [])).push(e);
+    }
+    const [a, b] = T.fighters;
+    ui.match.innerHTML = `<b>${esc(a.name)}</b> vs <b>${esc(b.name)}</b> · ${esc(T.court)} · ${T.frames.length.toLocaleString()} frames (${(T.frames.length / 60).toFixed(1)} s)`;
+    ui.seek.max = String(T.frames.length - 1);
+    buildMarks();
+    seek(0);
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+  function buildMarks() {
+    ui.marks.innerHTML = "";
+    const n = T.frames.length;
+    const pointType = T.eventTypes.indexOf("Point");
+    for (const e of T.events) {
+      if (e[E.type] !== pointType) continue;
+      const i = document.createElement("i");
+      i.style.left = (100 * e[E.frame] / Math.max(1, n - 1)) + "%";
+      i.style.background = T.fighters[e[E.actor]] ? T.fighters[e[E.actor]].color : "#888";
+      ui.marks.appendChild(i);
+    }
+  }
+
+  function seek(f) {
+    cur = Math.max(0, Math.min(T.frames.length - 1, f | 0));
+    fx.length = 0;
+    trailPts = [];
+    callout.age = 99;
+    const fr = T.frames[cur];
+    frameCamera(fr, true);
+    render();
+  }
+
+  function step() {
+    if (cur >= T.frames.length - 1) { setPlaying(false); return; }
+    cur++;
+    const evs = byFrame[cur];
+    if (evs) for (const e of evs) react(e);
+  }
+
+  function react(e) {
+    const type = evName(e[E.type]);
+    const x = e[E.x], y = e[E.y];
+    if (type === "Contact") {
+      const grade = e[E.b] & 0xf;
+      const touch = T.touches[e[E.a]] || "";
+      const hard = touch === "Spike" || touch === "JumpServe" || touch === "Finisher";
+      fx.push({ x, y, r: hard ? 0.55 : 0.32, life: hard ? 0.3 : 0.2, age: 0, color: grade === 1 ? "#ffc21a" : grade === 2 ? "#ffffff" : "#9aa3b5" });
+    } else if (type === "BlockTouch") {
+      fx.push({ x, y, r: 0.7, life: 0.3, age: 0, color: "#6cc8ff" });
+    } else if (type === "BallLanded") {
+      fx.push({ x, y: 0.02, r: 0.8, life: 0.5, age: 0, color: e[E.a] === 1 ? "#ffffff" : "#ff6b5b", ring: true });
+    } else if (type === "Callout") {
+      const text = T.callouts[e[E.a]];
+      if (text) callout = { text, age: 0 };
+    }
+  }
+
+  // Dueling camera: frame both fighters and the ball, 7-15 m wide, the net always in frame.
+  function frameCamera(fr, snap) {
+    const ax = v(fr, "ax"), cx = v(fr, "cx"), bx = v(fr, "bx");
+    const ballIn = v(fr, "bmode") !== 2;
+    let min = Math.min(0, ax, cx), max = Math.max(0, ax, cx);
+    if (ballIn) { min = Math.min(min, bx); max = Math.max(max, bx); }
+    const serving = T.phases[v(fr, "phase")] === "PreServe";
+    const tw = serving ? 15 : Math.max(7, Math.min(15, max - min + 3));
+    const limit = tw / 2 - 1;
+    const tx = Math.max(-limit, Math.min(limit, (min + max) / 2));
+    if (snap) { cam.w = tw; cam.x = tx; return; }
+    const k = 1 - Math.exp(-4 / 60);
+    cam.w += (tw - cam.w) * k;
+    cam.x += (tx - cam.x) * k;
+  }
+
+  // World (meters, y up) to canvas pixels.
+  function proj() {
+    const W = cv.width, H = cv.height;
+    const s = W / cam.w;
+    const ground = H - 70;
+    return { s, X: (x) => W / 2 + (x - cam.x) * s, Y: (y) => ground - y * s, ground };
+  }
+
+  function render() {
+    const fr = T.frames[cur];
+    const W = cv.width, H = cv.height;
+    const P = proj();
+    const hit = v(fr, "hitstop") > 0;
+    const shake = hit && !reduceMotion ? (Math.random() - 0.5) * 6 : 0;
+    ctx.save();
+    ctx.translate(shake, 0);
+
+    // Arena.
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#0a0f1c"); g.addColorStop(0.55, "#141b30"); g.addColorStop(1, "#1b2238");
+    ctx.fillStyle = g; ctx.fillRect(-10, 0, W + 20, H);
+    // Crowd band: rows of dots that brighten with the score margin (Stage Heat).
+    const margin = Math.abs(v(fr, "s0") - v(fr, "s1"));
+    ctx.fillStyle = `rgba(233,237,245,${0.06 + Math.min(0.12, margin * 0.02)})`;
+    for (let r = 0; r < 5; r++) for (let i = 0; i < 90; i++) {
+      const px = ((i * 37 + r * 13) % 90) / 90 * (W + 40) - 20 - (cam.x * 6) % 14;
+      ctx.beginPath(); ctx.arc(px, P.ground - 250 - r * 26, 3.2, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Floor, lines and net.
+    const half = T.half, net = T.net;
+    ctx.fillStyle = "#3a2a1a"; ctx.fillRect(-10, P.ground, W + 20, H - P.ground);
+    ctx.fillStyle = "#b5824e"; ctx.fillRect(P.X(-half), P.ground, P.X(half) - P.X(-half), 14);
+    ctx.fillStyle = "#f3efe6";
+    for (const lx of [-half, 0, half]) ctx.fillRect(P.X(lx) - 2, P.ground, 4, 14);
+    ctx.fillStyle = "#2b2f3a"; ctx.fillRect(P.X(0) - 4, P.Y(net), 8, P.ground - P.Y(net));
+    ctx.fillStyle = "rgba(10,12,18,0.85)"; ctx.fillRect(P.X(0) - 3, P.Y(net), 6, P.s * 1.0);
+    ctx.fillStyle = "#f3efe6"; ctx.fillRect(P.X(0) - 5, P.Y(net) - 3, 10, 6);
+
+    // Rings first (behind the fighters), then fighters, then ball.
+    for (const p of [0, 1]) drawRing(fr, p, P);
+    drawFighter(fr, 0, P);
+    drawFighter(fr, 1, P);
+    drawBall(fr, P);
+
+    // Flashes.
+    for (const f of fx) {
+      const k = f.age / f.life;
+      ctx.globalAlpha = Math.max(0, 1 - k);
+      ctx.strokeStyle = ctx.fillStyle = f.color;
+      ctx.beginPath();
+      ctx.arc(P.X(f.x), P.Y(f.y), Math.max(1, f.r * P.s * (0.4 + 0.6 * Math.sqrt(k))), 0, Math.PI * 2);
+      if (f.ring) { ctx.lineWidth = 3; ctx.stroke(); } else ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+
+    drawHud(fr, W, H);
+    ui.seek.value = String(cur);
+    const t = cur / 60;
+    ui.clock.textContent = `f ${cur} · ${Math.floor(t / 60)}:${(t % 60).toFixed(2).padStart(5, "0")}`;
+    showData(fr);
+  }
+
+  function drawRing(fr, p, P) {
+    const kind = v(fr, "ring" + p), into = v(fr, "ringIn" + p);
+    if (!kind || into < -v(fr, "good" + p) || into > 90) return;
+    const x = P.X(v(fr, "rx" + p)), y = P.Y(v(fr, "ry" + p));
+    const r0 = 0.3 * P.s;
+    const perfectHalf = v(fr, "perfect" + p) / 2, goodHalf = v(fr, "good" + p) / 2;
+    const a = Math.abs(into);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = a <= perfectHalf ? "#ffc21a" : a <= goodHalf ? "#ffffff" : "rgba(190,210,255,0.8)";
+    ctx.beginPath(); ctx.arc(x, y, r0, 0, Math.PI * 2); ctx.stroke();
+    if (into > 0) {
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "rgba(255,255,255,0.75)";
+      ctx.beginPath(); ctx.arc(x, y, r0 + into * 0.045 * P.s, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+
+  function drawFighter(fr, p, P) {
+    const fd = T.fighters[p];
+    const key = p === 0 ? "a" : "c";
+    const x = v(fr, key + "x"), y = v(fr, key + "y");
+    const act = T.actions[v(fr, key + "act")] || "Neutral";
+    const jump = T.jumps[v(fr, key + "jump")] || "None";
+    const commit = T.touches[v(fr, "commit" + p)] || "None";
+    const charging = v(fr, "charge" + p) === 1;
+    const dir = p === 0 ? 1 : -1;
+    const h = fd.height;
+    let crouch = 1, lean = 0, arm = 15, lying = false;
+    switch (act) {
+      case "DigStance": crouch = 0.72; lean = 18; arm = 60; break;
+      case "Committed": if (commit === "Set" || commit === "Dump") arm = 170; else { crouch = 0.8; arm = 70; } break;
+      case "JumpStartup": crouch = 0.78; arm = -40; break;
+      case "Airborne":
+        if (["Block", "CommitBlock", "ShockwaveBlock", "FakeHop"].includes(jump)) arm = 175;
+        else arm = charging ? 205 : commit === "Spike" ? 160 : 120;
+        break;
+      case "Landing": crouch = 0.82; break;
+      case "Diving": case "Floor": lying = true; arm = 90; break;
+      case "Knockback": lean = -25; break;
+      case "ServeHold": arm = 45; break;
+      case "ServeToss": arm = 150; break;
+      case "ServeApproach": arm = -30; break;
+      case "Recovery": crouch = 0.9; break;
+    }
+    const s = P.s;
+    const fx0 = P.X(x), fy0 = P.Y(y);
+    // Shadow on the floor.
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.beginPath(); ctx.ellipse(fx0, P.ground + 3, 0.35 * s, 0.07 * s, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.save();
+    ctx.translate(fx0, fy0);
+    if (lying) {
+      ctx.rotate(dir * Math.PI / 2);
+      ctx.translate(0, -0.25 * s);
+    } else {
+      ctx.rotate(dir * lean * Math.PI / 180 * 0.5);
+    }
+    const legs = h * 0.45 * crouch, torso = h * 0.38 * crouch;
+    ctx.lineCap = "round";
+    // Legs.
+    ctx.strokeStyle = "#2a3149"; ctx.lineWidth = 0.13 * s;
+    ctx.beginPath(); ctx.moveTo(-0.08 * s, 0); ctx.lineTo(-0.05 * s, -legs * s); ctx.moveTo(0.08 * s, 0); ctx.lineTo(0.05 * s, -legs * s); ctx.stroke();
+    // Torso in identity color.
+    ctx.strokeStyle = fd.color; ctx.lineWidth = 0.32 * s;
+    ctx.beginPath(); ctx.moveTo(0, -legs * s); ctx.lineTo(0, -(legs + torso) * s); ctx.stroke();
+    // Arm.
+    const sh = { x: 0, y: -(legs + torso * 0.92) * s };
+    const ang = (arm - 180) * Math.PI / 180;
+    const alen = h * 0.36 * s;
+    ctx.strokeStyle = "#d9b49a"; ctx.lineWidth = 0.09 * s;
+    ctx.beginPath(); ctx.moveTo(sh.x, sh.y);
+    ctx.lineTo(sh.x + Math.sin(-ang) * alen * dir, sh.y + Math.cos(ang) * alen); ctx.stroke();
+    // Head.
+    ctx.fillStyle = "#d9b49a";
+    ctx.beginPath(); ctx.arc(0, -(legs + torso) * s - 0.13 * h * s, 0.11 * h * s, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBall(fr, P) {
+    const mode = v(fr, "bmode");
+    const bx = v(fr, "bx"), by = v(fr, "by");
+    if (mode === 2 && T.phases[v(fr, "phase")] !== "DeadBall") return;
+    trailPts.push([bx, by]);
+    if (trailPts.length > 7) trailPts.shift();
+    // Always-on floor shadow (spec readability aid).
+    const k = Math.min(1, by / 8);
+    ctx.fillStyle = "rgba(0,0,0,0.45)";
+    ctx.beginPath(); ctx.ellipse(P.X(bx), P.ground + 2, (0.22 - 0.13 * k) * P.s, (0.05 - 0.03 * k) * P.s, 0, 0, Math.PI * 2); ctx.fill();
+    // Trail.
+    if (mode === 1 && trailPts.length > 1) {
+      ctx.strokeStyle = "rgba(255,210,63,0.35)"; ctx.lineWidth = 0.12 * P.s; ctx.lineCap = "round";
+      ctx.beginPath();
+      trailPts.forEach(([x, y], i) => i ? ctx.lineTo(P.X(x), P.Y(y)) : ctx.moveTo(P.X(x), P.Y(y)));
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#ffd23f";
+    ctx.beginPath(); ctx.arc(P.X(bx), P.Y(by), Math.max(4, 0.105 * P.s * 1.3), 0, Math.PI * 2); ctx.fill();
+    // Edge marker when the ball is above the frame.
+    if (P.Y(by) < 0) {
+      ctx.fillStyle = "#ffd23f";
+      ctx.font = "600 18px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("▲ " + by.toFixed(1) + " m", Math.max(60, Math.min(cv.width - 60, P.X(bx))), 24);
+    }
+  }
+
+  function drawHud(fr, W, H) {
+    const [a, b] = T.fighters;
+    const target = 7;
+    const bar = (x, w, frac, color, right) => {
+      ctx.fillStyle = "rgba(10,14,24,0.8)";
+      slant(x, 22, w, 30);
+      ctx.fillStyle = color;
+      const fw = w * Math.max(0, Math.min(1, frac));
+      slant(right ? x + w - fw : x, 22, fw, 30);
+    };
+    bar(30, 420, v(fr, "s0") / target, a.color, false);
+    bar(W - 450, 420, v(fr, "s1") / target, b.color, true);
+    // Stamina.
+    ctx.fillStyle = "#56e08a";
+    ctx.fillRect(40, 60, 360 * Math.max(0, v(fr, "stam0")) / 100, 6);
+    ctx.fillRect(W - 40 - 360 * Math.max(0, v(fr, "stam1")) / 100, 60, 360 * Math.max(0, v(fr, "stam1")) / 100, 6);
+    // Set pips.
+    for (let i = 0; i < 2; i++) {
+      ctx.fillStyle = i < v(fr, "sets0") ? "#ffd23f" : "rgba(255,255,255,0.25)";
+      ctx.beginPath(); ctx.arc(470 + i * 22, 37, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = i < v(fr, "sets1") ? "#ffd23f" : "rgba(255,255,255,0.25)";
+      ctx.beginPath(); ctx.arc(W - 470 - i * 22, 37, 7, 0, Math.PI * 2); ctx.fill();
+    }
+    // Central counter and server marker.
+    ctx.fillStyle = "#e9edf5";
+    ctx.font = "800 italic 64px 'Saira Condensed', 'Arial Narrow', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(v(fr, "s0") + " : " + v(fr, "s1"), W / 2, 74);
+    const phase = T.phases[v(fr, "phase")];
+    if (phase === "PreServe" || phase === "Rally") {
+      ctx.font = "600 18px 'Source Sans 3', sans-serif";
+      ctx.fillStyle = "#ffd23f";
+      ctx.fillText(v(fr, "server") === 0 ? "◀ SERVE" : "SERVE ▶", W / 2, 100);
+    }
+    // Names.
+    ctx.font = "800 italic 22px 'Saira Condensed', 'Arial Narrow', sans-serif";
+    ctx.textAlign = "left"; ctx.fillStyle = "#e9edf5"; ctx.fillText(a.name.toUpperCase(), 40, 90);
+    ctx.textAlign = "right"; ctx.fillText(b.name.toUpperCase(), W - 40, 90);
+    // Surge: three segments in each lower corner.
+    for (let p = 0; p < 2; p++) {
+      const surge = v(fr, "surge" + p);
+      for (let i = 0; i < 3; i++) {
+        const fill = Math.max(0, Math.min(1, (surge - i * 100) / 100));
+        const x = p === 0 ? 30 + i * 74 : W - 30 - 66 - i * 74;
+        ctx.fillStyle = "rgba(10,14,24,0.8)"; slant(x, H - 44, 66, 20);
+        ctx.fillStyle = fill >= 1 ? "#ffd23f" : `rgba(255,210,63,${0.15 + fill * 0.5})`;
+        slant(x, H - 44, 66 * fill, 20);
+      }
+    }
+    // Callout.
+    if (callout.age < 1.2) {
+      const alpha = callout.age < 0.9 ? 1 : 1 - (callout.age - 0.9) / 0.3;
+      ctx.globalAlpha = Math.max(0, alpha);
+      ctx.font = "800 italic 104px 'Saira Condensed', 'Arial Narrow', sans-serif";
+      ctx.textAlign = "center";
+      ctx.lineWidth = 8; ctx.strokeStyle = "#0d1220"; ctx.strokeText(callout.text, W / 2, H * 0.42);
+      ctx.fillStyle = "#ffc21a"; ctx.fillText(callout.text, W / 2, H * 0.42);
+      ctx.globalAlpha = 1;
+    }
+    if (v(fr, "hitstop") > 0) {
+      ctx.fillStyle = "rgba(255,255,255,0.05)"; ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function slant(x, y, w, h) {
+    if (w <= 0) return;
+    const k = h * 0.35;
+    ctx.beginPath(); ctx.moveTo(x + k, y); ctx.lineTo(x + w + k, y); ctx.lineTo(x + w, y + h); ctx.lineTo(x, y + h); ctx.closePath(); ctx.fill();
+  }
+
+  function showData(fr) {
+    const [a, b] = T.fighters;
+    const rows = [
+      ["frame", cur + "  (world " + v(fr, "world") + ")"],
+      ["phase", T.phases[v(fr, "phase")]],
+      ["ball", v(fr, "bx").toFixed(2) + ", " + v(fr, "by").toFixed(2) + " m"],
+      [a.name, (T.actions[v(fr, "aact")] || "") + (v(fr, "ajump") ? " · " + T.jumps[v(fr, "ajump")] : "")],
+      [b.name, (T.actions[v(fr, "cact")] || "") + (v(fr, "cjump") ? " · " + T.jumps[v(fr, "cjump")] : "")],
+      ["rings", ringText(fr, 0) + " | " + ringText(fr, 1)],
+      ["surge", v(fr, "surge0") + " | " + v(fr, "surge1")],
+      ["hit-stop", v(fr, "hitstop") + " f"],
+    ];
+    ui.data.innerHTML = rows.map(([k, val]) => `<dt>${esc(k)}</dt><dd>${esc(val)}</dd>`).join("");
+    // Event log: the last 14 events up to the playhead.
+    const out = [];
+    for (let f = cur; f >= 0 && out.length < 14; f--) {
+      const evs = byFrame[f];
+      if (!evs) continue;
+      for (let i = evs.length - 1; i >= 0 && out.length < 14; i--) out.push(describe(evs[i], f === cur));
+    }
+    ui.log.innerHTML = out.join("");
+  }
+
+  function ringText(fr, p) {
+    const k = v(fr, "ring" + p);
+    if (!k) return "—";
+    const names = ["None", "Bump", "Set", "Spike", "Serve", "Block", "Denial"];
+    return (names[k] || k) + " " + (v(fr, "ringIn" + p) > 0 ? "in " + v(fr, "ringIn" + p) + "f" : v(fr, "ringIn" + p) + "f");
+  }
+
+  function describe(e, now) {
+    const type = evName(e[E.type]);
+    const who = T.fighters[e[E.actor]] ? T.fighters[e[E.actor]].name : "";
+    let detail = "";
+    if (type === "Contact") {
+      const grades = ["", "Perfect", "Good", "Late"];
+      const bands = ["controlled", "loose", "shank", "miss"];
+      detail = (T.touches[e[E.a]] || "") + " · " + (grades[e[E.b] & 0xf] || "") + " · " + (bands[(e[E.b] >> 4) & 0xf] || "");
+    } else if (type === "Callout") detail = T.callouts[e[E.a]] || "";
+    else if (type === "Point") detail = "+" + e[E.b];
+    else if (type === "BallLanded") detail = e[E.a] === 1 ? "in" : "out";
+    return `<li class="${now ? "now" : ""}"><span>f${e[E.frame]}</span><span><b>${esc(type)}</b> ${esc(who)} ${esc(detail)}</span></li>`;
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    ui.play.textContent = p ? "Pause" : "Play";
+    if (p) { last = performance.now(); acc = 0; requestAnimationFrame(tick); }
+  }
+
+  function tick(now) {
+    if (!playing) return;
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    acc += dt * 60 * speed;
+    let n = 0;
+    while (acc >= 1 && n < 8) { step(); acc -= 1; n++; }
+    for (const f of fx) f.age += dt;
+    for (let i = fx.length - 1; i >= 0; i--) if (fx[i].age >= fx[i].life) fx.splice(i, 1);
+    callout.age += dt;
+    frameCamera(T.frames[cur], false);
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  ui.play.addEventListener("click", () => setPlaying(!playing));
+  ui.back.addEventListener("click", () => { setPlaying(false); seek(cur - 1); });
+  ui.fwd.addEventListener("click", () => { setPlaying(false); step(); frameCamera(T.frames[cur], false); render(); });
+  ui.speed.addEventListener("change", () => { speed = parseFloat(ui.speed.value); });
+  ui.seek.addEventListener("input", () => seek(parseInt(ui.seek.value, 10)));
+  ui.open.addEventListener("change", async () => {
+    const f = ui.open.files && ui.open.files[0];
+    if (!f) return;
+    try { setPlaying(false); load(JSON.parse(await f.text())); }
+    catch (err) { ui.match.textContent = "That file is not a Volley Duel trace (" + err.message + ")."; }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!T || e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+    if (e.key === " ") { e.preventDefault(); setPlaying(!playing); }
+    else if (e.key === ",") { setPlaying(false); seek(cur - 1); }
+    else if (e.key === ".") { setPlaying(false); step(); render(); }
+    else if (e.key === "[" || e.key === "]") {
+      const opts = ["0.25", "0.5", "1", "2"];
+      let i = opts.indexOf(ui.speed.value) + (e.key === "]" ? 1 : -1);
+      i = Math.max(0, Math.min(opts.length - 1, i));
+      ui.speed.value = opts[i]; speed = parseFloat(opts[i]);
+    }
+  });
+
+  fetch("trace.json")
+    .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then((t) => {
+      load(t);
+      // Open on the first rally in progress so the still frame shows play, then autoplay.
+      const rally = T.phases.indexOf("Rally");
+      let start = 0;
+      for (let i = 0; i < T.frames.length; i++) if (T.frames[i][F.phase] === rally && T.frames[i][F.by] > 2.5) { start = i; break; }
+      seek(start);
+      if (!reduceMotion) setPlaying(true);
+    })
+    .catch((err) => { ui.match.textContent = "Could not load trace.json (" + err.message + "). Open a trace with the button below."; });
+})();
+</script>

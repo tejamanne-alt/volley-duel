@@ -179,6 +179,24 @@ estimates when a spike at it would arrive, and pre-times the dig with 2.5× its 
   choice lock) is a human-reading weapon the CPU barely exploits. Both are cases where CPU play is
   a weak proxy, as the spec warns; the next lever is human playtests plus CPU defensive reads.
 - Latest gate run (200 matches per pairing, Legend): see SPIKES.md.
+- Trace findings (Rafa vs Rin):
+  - Rin waits at 4.6 m, so short, steep spikes land 3 m in front of her in 10 frames.
+  - She jumps to block a hitter whose contact is about 0.6 m above her hands.
+  - Control 3 barely matters at Perfect timing (it costs only 0.06 of Q).
+- Tried and reverted, each fixing one pairing and breaking another:
+  - Scramble digs.
+  - Dig reach 0.18 per Dig point.
+  - A CPU that skips blocks it can't reach and digs from mid-court. Rin's stuffs are 56% of her
+    points.
+- **Options for the next pass (pick with playtests):**
+  - (a) Make Control matter at Perfect timing, with spike scatter per missing Control point. This
+    nerfs Rafa without touching Rin.
+  - (b) Make Rin's Signature defense, Sweep and Ink Return, the counter to power, so her CPU
+    reads power hitters into it.
+  - (c) Position the CPU defense per matchup: block only within reach, and otherwise dig from
+    mid-court with reach scaled by Dig.
+- **Recommendation: (a), then (c), measured together.** Re-record the golden replay after any
+  sim change.
 
 ## Netcode
 
