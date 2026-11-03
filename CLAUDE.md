@@ -73,7 +73,8 @@ dotnet run -c Release --project Headless/VolleyDuel.BalanceLab -- netsoak --matc
 ```
 
 In Unity: open the project and build. `BuildIdentity` (Assets/VolleyDuel/Editor) applies the app
-id `com.astradite.volleyduel`, iOS automatic signing with the Teja Manne team, landscape, IL2CPP
+id `com.astradite.volleyduel`, iOS automatic signing with the Teja Manne team (Team ID
+`JYC5MKYDS7`), landscape, IL2CPP
 and the graybox materials on every editor load and before every build. Change identity there, not
 in Player Settings. The game starts itself in any scene (`GameBootstrap`). `Volley Duel/Setup Project`
 also switches the render pipeline to URP, and `Volley Duel/Build Scenes` writes

@@ -16,10 +16,10 @@ namespace VolleyDuel.EditorTools
     /// The app's identity and platform defaults, applied automatically on every editor load and again
     /// before every build, so nobody fixes Player Settings or Xcode by hand:
     /// - Bundle and package id <see cref="ApplicationId"/> on iOS and Android.
-    /// - iOS automatic signing with the <see cref="AppleTeamName"/> developer team. The Team ID comes from
-    ///   <see cref="AppleTeamId"/> when set. Otherwise it comes from the team field (OU) of the "Apple
-    ///   Development: Teja Manne" certificate in this Mac's keychain, the one Xcode created for the
-    ///   account, and failing that from Unity's Preferences.
+    /// - iOS automatic signing with the <see cref="AppleTeamName"/> developer team, Team ID
+    ///   <see cref="AppleTeamId"/>. If that is emptied, the ID comes from the team field (OU) of the
+    ///   "Apple Development: Teja Manne" certificate in this Mac's keychain, the one Xcode created for
+    ///   the account, and failing that from Unity's Preferences.
     /// - Landscape only, IL2CPP ARM64, the Input System backend on, and the graybox base materials.
     /// Change identity here, not in Player Settings: these values win on the next load or build.
     /// </summary>
@@ -40,10 +40,11 @@ namespace VolleyDuel.EditorTools
         public const string AppleCertificate = "Apple Development: Teja Manne (BX42AX95QW)";
 
         /// <summary>
-        /// Optional: pin the 10-character Team ID (developer.apple.com, Account, Membership details). Leave
-        /// empty to read it from the keychain certificate, which works on any Mac signed in to the account.
+        /// The Teja Manne team's 10-character Team ID (developer.apple.com, Account, Membership details).
+        /// Pinned so every Mac signs with this team. Set it to empty to read the ID from the keychain
+        /// certificate instead.
         /// </summary>
-        public const string AppleTeamId = "";
+        public const string AppleTeamId = "JYC5MKYDS7";
 
         const string MaterialFolder = "Assets/VolleyDuel/Resources/Graybox";
         static string resolvedTeam;

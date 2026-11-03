@@ -331,5 +331,6 @@ looks the ID up:
    keychain, falling back to any "Apple Development: Teja Manne" certificate.
 2. Failing that, from Unity's Preferences.
 
-`BuildIdentity.AppleTeamId` pins the ID explicitly. The iOS postprocess also sets
-`DEVELOPMENT_TEAM` and automatic signing on every Xcode target.
+`BuildIdentity.AppleTeamId` now pins the ID: `JYC5MKYDS7`, the Teja Manne team, given by the
+account owner. The keychain lookup remains only as a fallback if the pin is emptied. The iOS
+postprocess also sets `DEVELOPMENT_TEAM` and automatic signing on every Xcode target.
