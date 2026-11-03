@@ -52,6 +52,16 @@ namespace UnityEditor
         public static void CreateAsset(UnityEngine.Object asset, string path) { }
         public static void SaveAssets() { }
         public static bool IsValidFolder(string path) => false;
+        public static UnityEngine.Object[] LoadAllAssetsAtPath(string assetPath) => new UnityEngine.Object[0];
+    }
+
+    public class SerializedProperty { public int intValue { get; set; } }
+
+    public class SerializedObject
+    {
+        public SerializedObject(UnityEngine.Object obj) { }
+        public SerializedProperty FindProperty(string propertyPath) => null;
+        public bool ApplyModifiedProperties() => true;
     }
 
     public sealed class EditorBuildSettingsScene

@@ -49,10 +49,27 @@ namespace VolleyDuel.EditorTools
             PlayerSettings.iOS.targetOSVersionString = "15.0";
             PlayerSettings.runInBackground = false;
 
+            EnableInputSystem();
             EnsurePipeline();
             ImportTextMeshPro();
             AssetDatabase.SaveAssets();
             Debug.Log("Volley Duel: project settings applied (landscape, IL2CPP ARM64, URP, TextMeshPro).");
+        }
+
+        /// <summary>
+        /// Touch, keyboard and gamepad go through the Input System package (InputSystemUIInputModule). Turn its
+        /// native backends on ("Both" keeps the legacy API working for tools). Takes effect after a restart.
+        /// </summary>
+        static void EnableInputSystem()
+        {
+            UnityEngine.Object[] settings = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
+            if (settings.Length == 0) return;
+            var so = new SerializedObject(settings[0]);
+            SerializedProperty handler = so.FindProperty("activeInputHandler");
+            if (handler == null || handler.intValue == 2) return;
+            handler.intValue = 2;
+            so.ApplyModifiedProperties();
+            Debug.LogWarning("Volley Duel: Active Input Handling set to Both. Restart the editor for it to take effect.");
         }
 
         static void EnsurePipeline()

@@ -71,7 +71,8 @@ python3 scripts/gen_meta.py              # add missing Unity .meta files (determ
 dotnet run -c Release --project Headless/VolleyDuel.BalanceLab -- netsoak --matches 30   # netcode soak gate
 ```
 
-In Unity: `Volley Duel/Setup Project`, then `Volley Duel/Build Scenes`, then press Play in
+In Unity: `Volley Duel/Setup Project` (restart the editor once if it reports that it switched
+the input handling), then `Volley Duel/Build Scenes`, then press Play in
 `Assets/VolleyDuel/Scenes/Main.unity`. Keyboard: A/D move, W/S up/down, J HIT, K JUMP, L FEINT,
 U TRICK, I Amped TRICK, O FINISHER/DENY.
 
