@@ -15,6 +15,7 @@
     <Compile Include="$(GameRoot)Presentation/**/*.cs" />
     <Compile Include="$(GameRoot)UI/**/*.cs" />
     <Compile Include="$(CorePackage)Runtime/Transport.BLE/**/*.cs" />
+    <Compile Include="$(CorePackage)Runtime/Haptics/**/*.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(UnityEditorVariant)' == 'true'">
     <Compile Include="$(GameRoot)Editor/**/*.cs" />

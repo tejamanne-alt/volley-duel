@@ -334,3 +334,38 @@ looks the ID up:
 `BuildIdentity.AppleTeamId` now pins the ID: `JYC5MKYDS7`, the Teja Manne team, given by the
 account owner. The keychain lookup remains only as a fallback if the pin is emptied. The iOS
 postprocess also sets `DEVELOPMENT_TEAM` and automatic signing on every Xcode target.
+
+### U8. Editor 6000.6.7f1 and a manifest without retired modules
+- The owner opened the project in Unity 6000.6.7f1, the editor installed on their Mac.
+  `ProjectVersion.txt` now names it, so the Hub stops flagging a missing 6000.3 editor.
+- The spec says 6.3 LTS; nothing in the code depends on the difference.
+- 6000.6 no longer ships `com.unity.modules.vibration`, so listing it failed package resolution.
+  That also left the other packages unimported. It is removed.
+- `Handheld.Vibrate` is replaced by Duel Core's own haptics plugin (U10), so nothing depends on the
+  retired module.
+- Core packages (URP) resolve to the editor's own versions whatever the manifest says.
+
+### U9. The editor owns the app scene
+`SceneSetup` runs after every editor load:
+- It creates `Assets/VolleyDuel/Scenes/Main.unity` when missing.
+- It puts that scene first in the shared build scene list.
+- It opens it in place of an untouched "Untitled" scene.
+- It saves the components URP would otherwise add on first render (camera and light data). That
+  first render is what marked "Untitled" as modified and made every build ask to save it.
+
+A scene with real work in it is never closed or replaced.
+
+### U10. Haptics through a thin native plugin
+`Duel.Core.Haptics` covers both platforms:
+- iOS: `UIImpactFeedbackGenerator`, through `DllImport`.
+- Android: the vibrator service, through JNI, with the VIBRATE permission added at build time.
+
+This is the spec's "thin Core Haptics and Android vibration plugin". It replaces
+`Handheld.Vibrate`, whose module 6000.6 retired.
+
+### U11. Input System only
+`BuildIdentity` switches Active Input Handling to the Input System package once the package is
+present. The old Input Manager is deprecated and triggered a warning on every load. The switch
+applies at the next editor start, with no restart prompt: the game reads either backend until
+then. The UI assembly's `DUEL_INPUT_SYSTEM` version define keeps the code compiling if the package
+is ever missing.

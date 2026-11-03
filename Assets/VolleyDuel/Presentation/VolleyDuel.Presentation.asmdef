@@ -4,7 +4,8 @@
     "references": [
         "Duel.Core.Sim",
         "Duel.Core.Net",
-        "VolleyDuel.Sim"
+        "VolleyDuel.Sim",
+        "Duel.Core.Haptics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

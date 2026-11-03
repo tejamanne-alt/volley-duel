@@ -1,6 +1,6 @@
 using Duel.Core.Sim;
 using UnityEngine;
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && DUEL_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
@@ -23,7 +23,7 @@ namespace VolleyDuel.UI
         {
             float x = 0f, y = 0f;
             InputButtons b = InputButtons.None;
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && DUEL_INPUT_SYSTEM
             Keyboard kb = Keyboard.current;
             if (kb != null)
             {

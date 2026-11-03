@@ -40,6 +40,8 @@ namespace Duel.Core.Editor
             AddPermission(doc, manifest, "android.permission.BLUETOOTH_SCAN", 0, "neverForLocation");
             AddPermission(doc, manifest, "android.permission.BLUETOOTH_ADVERTISE", 0, null);
             AddPermission(doc, manifest, "android.permission.BLUETOOTH_CONNECT", 0, null);
+            // Haptics (Duel.Core.Haptics).
+            AddPermission(doc, manifest, "android.permission.VIBRATE", 0, null);
             // LAN transport.
             AddPermission(doc, manifest, "android.permission.INTERNET", 0, null);
             AddPermission(doc, manifest, "android.permission.ACCESS_WIFI_STATE", 0, null);

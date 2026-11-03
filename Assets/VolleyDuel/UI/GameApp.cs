@@ -8,7 +8,7 @@ using Duel.Core.Transport.BLE;
 using Duel.Core.Transport.LAN;
 using UnityEngine;
 using UnityEngine.EventSystems;
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && DUEL_INPUT_SYSTEM
 using UnityEngine.InputSystem.UI;
 #endif
 using UnityEngine.UI;
@@ -153,7 +153,7 @@ namespace VolleyDuel.UI
         {
             EventSystem es = FindAnyObjectByType<EventSystem>();
             if (es == null) es = new GameObject("EventSystem").AddComponent<EventSystem>();
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && DUEL_INPUT_SYSTEM
             StandaloneInputModule legacy = es.GetComponent<StandaloneInputModule>();
             if (legacy != null) DestroyImmediate(legacy);
             if (es.GetComponent<InputSystemUIInputModule>() == null) es.gameObject.AddComponent<InputSystemUIInputModule>();

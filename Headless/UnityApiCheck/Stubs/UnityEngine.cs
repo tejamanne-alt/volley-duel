@@ -198,6 +198,7 @@ namespace UnityEngine
     public static class Application
     {
         public static RuntimePlatform platform => RuntimePlatform.OSXEditor;
+        public static bool isBatchMode => false;
         public static int targetFrameRate { get; set; }
         public static string persistentDataPath => "";
         public static string dataPath => "";
@@ -365,6 +366,8 @@ namespace UnityEngine
     }
 
     public class AndroidJavaClass : AndroidJavaObject { public AndroidJavaClass(string className) : base(className) { } }
+
+    public sealed class AndroidJavaException : Exception { }
 }
 
 namespace UnityEngine.Android
@@ -391,6 +394,9 @@ namespace UnityEngine.Rendering.Universal
 {
     public abstract class ScriptableRendererData : ScriptableObject { }
     public sealed class UniversalRendererData : ScriptableRendererData { }
+    public sealed class UniversalAdditionalCameraData : MonoBehaviour { }
+    public sealed class UniversalAdditionalLightData : MonoBehaviour { }
+
     public sealed class UniversalRenderPipelineAsset : UnityEngine.Rendering.RenderPipelineAsset
     {
         public static UniversalRenderPipelineAsset Create(ScriptableRendererData rendererData = null) => null;
@@ -399,7 +405,19 @@ namespace UnityEngine.Rendering.Universal
 
 namespace UnityEngine.SceneManagement
 {
-    public struct Scene { }
+    public struct Scene
+    {
+        public string path => "";
+        public bool isDirty => false;
+        public bool IsValid() => true;
+        public GameObject[] GetRootGameObjects() => new GameObject[0];
+    }
+
+    public static class SceneManager
+    {
+        public static Scene GetActiveScene() => default;
+        public static bool SetActiveScene(Scene scene) => true;
+    }
 }
 
 namespace UnityEngine.Events

@@ -1,6 +1,7 @@
 # Volley Duel — agent guide
 
-1v1 volleyball fighting game for iOS and Android. Unity 6.3 LTS + URP; art in Blender.
+1v1 volleyball fighting game for iOS and Android. Unity 6 + URP (project on 6000.6.7f1, the
+installed editor; the spec names 6.3 LTS); art in Blender.
 The design spec is `docs/Volley_Duel_Concept.md` (the concept and build prompt). Decisions
 and spec interpretations are in `DECISIONS.md`; measured spike results go in `SPIKES.md`.
 
@@ -44,7 +45,9 @@ Packages/com.duel.core/
   Runtime/Transport.LAN       Duel.Core.Transport.LAN        UDP, reliable control channel, beacon discovery
   Runtime/Transport.BLE       Duel.Core.Transport.BLE        BleTransport + IBleBridge (iOS DllImport, Android JNI)
   Runtime/Transport.WiFiAware Duel.Core.Transport.WiFiAware  placeholder, off (entitlement not requested)
+  Runtime/Haptics             Duel.Core.Haptics              impact haptics (iOS feedback generators, Android vibrator)
   Plugins/iOS/DuelBle.swift, Plugins/Android/DuelBle.kt      native BLE bridges (need the P0 device spike)
+  Plugins/iOS/DuelHaptics.swift                               native haptics for iOS
   Editor          Duel.Core.Editor         build postprocess: Android permissions, iOS plist/Swift settings
   Tests/EditMode  Duel.Core.Tests
 Headless/          .NET 8 solution compiling the engine-free assemblies (C# 9, netstandard2.1, like Unity)
@@ -76,9 +79,11 @@ In Unity: open the project and build. `BuildIdentity` (Assets/VolleyDuel/Editor)
 id `com.astradite.volleyduel`, iOS automatic signing with the Teja Manne team (Team ID
 `JYC5MKYDS7`), landscape, IL2CPP
 and the graybox materials on every editor load and before every build. Change identity there, not
-in Player Settings. The game starts itself in any scene (`GameBootstrap`). `Volley Duel/Setup Project`
-also switches the render pipeline to URP, and `Volley Duel/Build Scenes` writes
-`Assets/VolleyDuel/Scenes/Main.unity`; both are optional. Keyboard: A/D move, W/S up/down, J HIT, K JUMP, L FEINT,
+in Player Settings. `SceneSetup` creates `Assets/VolleyDuel/Scenes/Main.unity`, puts it first in the
+build scene list and opens it in place of an untouched "Untitled" scene, so builds never ask to
+save. The game also starts itself in any scene (`GameBootstrap`). `Volley Duel/Setup Project` also
+switches the render pipeline to URP, and `Volley Duel/Build Scenes` regenerates the scene; both
+are optional. Keyboard: A/D move, W/S up/down, J HIT, K JUMP, L FEINT,
 U TRICK, I Amped TRICK, O FINISHER/DENY.
 
 The .NET SDK in the cloud container comes from Ubuntu's `dotnet-sdk-8.0` package.

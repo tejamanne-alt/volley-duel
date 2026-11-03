@@ -61,6 +61,10 @@ def owned_scripts(folder, asmdef_folders):
 
 
 def strip_comments(text):
+    """Drops comments and the contents of string and char literals, which can mention namespaces without using them."""
+    text = re.sub(r"'(?:\\.|[^'\\\n])'", "''", text)
+    text = re.sub(r'@"(?:""|[^"])*"', '""', text)
+    text = re.sub(r'"(?:\\.|[^"\\\n])*"', '""', text)
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
     return re.sub(r"//[^\n]*", "", text)
 

@@ -20,7 +20,8 @@ namespace VolleyDuel.EditorTools
     ///   <see cref="AppleTeamId"/>. If that is emptied, the ID comes from the team field (OU) of the
     ///   "Apple Development: Teja Manne" certificate in this Mac's keychain, the one Xcode created for
     ///   the account, and failing that from Unity's Preferences.
-    /// - Landscape only, IL2CPP ARM64, the Input System backend on, and the graybox base materials.
+    /// - Landscape only, IL2CPP ARM64, the Input System as the input backend, and the graybox base
+    ///   materials. After loading it also makes sure the app scene exists (<see cref="SceneSetup"/>).
     /// Change identity here, not in Player Settings: these values win on the next load or build.
     /// </summary>
     [InitializeOnLoad]
@@ -56,6 +57,7 @@ namespace VolleyDuel.EditorTools
             {
                 if (EditorApplication.isPlayingOrWillChangePlaymode) return;
                 Apply();
+                SceneSetup.Ensure();
             };
         }
 
@@ -82,7 +84,8 @@ namespace VolleyDuel.EditorTools
                 PlayerSettings.iOS.appleDeveloperTeamID = team;
                 Debug.Log("Volley Duel: iOS signing team set to " + AppleTeamName + " (" + team + ", from " + source + ").");
             }
-            if (PlayerSettings.iOS.targetOSVersionString != "15.0") PlayerSettings.iOS.targetOSVersionString = "15.0";
+            // Raise the iOS minimum to 15.0, never lower it: newer editors set their own higher floor.
+            if (!Version.TryParse(PlayerSettings.iOS.targetOSVersionString, out Version ios) || ios < new Version(15, 0)) PlayerSettings.iOS.targetOSVersionString = "15.0";
 
             // Android: IL2CPP ARM64, Android 8.0+.
             if (PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android) != ScriptingImplementation.IL2CPP) PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
@@ -206,19 +209,23 @@ namespace VolleyDuel.EditorTools
         // ------------------------------------------------------------------ input and materials
 
         /// <summary>
-        /// Turns the Input System backend on ("Both" keeps the legacy API working). The game runs under
-        /// either setting; this enables gamepads. Takes effect after an editor restart.
+        /// Switches Active Input Handling to the Input System package when it is installed. Unity marks the
+        /// old Input Manager for deprecation, and the game reads the Input System when it is on. The change
+        /// takes effect the next time the editor starts. The game runs under either setting until then, so
+        /// nothing prompts for a restart.
         /// </summary>
         static void EnableInputSystem()
         {
+            if (Type.GetType("UnityEngine.InputSystem.InputSystem, Unity.InputSystem") == null) return;
             UnityEngine.Object[] settings = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
             if (settings.Length == 0) return;
             var so = new SerializedObject(settings[0]);
             SerializedProperty handler = so.FindProperty("activeInputHandler");
-            if (handler == null || handler.intValue != 0) return;
-            handler.intValue = 2;
+            if (handler == null || handler.intValue == 1) return;
+            handler.intValue = 1;
             so.ApplyModifiedProperties();
-            Debug.LogWarning("Volley Duel: Active Input Handling set to Both (adds gamepad support). Restart the editor for it to take effect.");
+            AssetDatabase.SaveAssets();
+            Debug.Log("Volley Duel: Active Input Handling set to the Input System package. It applies the next time the editor starts; the game runs under either setting.");
         }
 
         /// <summary>

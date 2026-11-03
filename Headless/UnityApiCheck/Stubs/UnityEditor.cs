@@ -85,6 +85,8 @@ namespace UnityEditor
     public sealed class EditorBuildSettingsScene
     {
         public EditorBuildSettingsScene(string path, bool enabled) { }
+        public string path { get; set; }
+        public bool enabled { get; set; }
     }
 
     public static class EditorBuildSettings { public static EditorBuildSettingsScene[] scenes { get; set; } }
@@ -130,11 +132,15 @@ namespace UnityEditor.SceneManagement
 {
     public enum NewSceneSetup { EmptyScene, DefaultGameObjects }
     public enum NewSceneMode { Single, Additive }
+    public enum OpenSceneMode { Single, Additive, AdditiveWithoutLoading }
 
     public static class EditorSceneManager
     {
         public static UnityEngine.SceneManagement.Scene NewScene(NewSceneSetup setup, NewSceneMode mode) => default;
         public static bool SaveScene(UnityEngine.SceneManagement.Scene scene, string dstScenePath) => true;
+        public static UnityEngine.SceneManagement.Scene OpenScene(string scenePath, OpenSceneMode mode) => default;
+        public static bool CloseScene(UnityEngine.SceneManagement.Scene scene, bool removeScene) => true;
+        public static bool SaveCurrentModifiedScenesIfUserWantsTo() => true;
     }
 }
 

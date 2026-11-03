@@ -17,14 +17,14 @@ namespace VolleyDuel.EditorTools
     /// Editor entry points. Scenes and settings are always made through these, never by hand-editing YAML.
     /// Identity, signing and platform defaults apply automatically (<see cref="BuildIdentity"/>).
     /// "Volley Duel/Setup Project" re-applies them and also sets URP as the render pipeline.
-    /// "Volley Duel/Build Scenes" builds the one app scene.
+    /// "Volley Duel/Build Scenes" rebuilds the one app scene (it is also created automatically).
     /// "Volley Duel/Validate Data" bakes the JSON tables.
     /// "Volley Duel/Print Sim Version" prints the handshake fingerprint.
     /// "Volley Duel/Build/*" makes review builds.
     /// </summary>
     public static class VolleyDuelMenu
     {
-        public const string ScenePath = "Assets/VolleyDuel/Scenes/Main.unity";
+        public const string ScenePath = SceneSetup.ScenePath;
         const string PipelinePath = "Assets/VolleyDuel/Settings/VolleyDuelURP.asset";
 
         [MenuItem("Volley Duel/Setup Project")]
@@ -55,30 +55,7 @@ namespace VolleyDuel.EditorTools
         }
 
         [MenuItem("Volley Duel/Build Scenes")]
-        public static void BuildScenes()
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-
-            var cameraObject = new GameObject("Main Camera") { tag = "MainCamera" };
-            Camera cam = cameraObject.AddComponent<Camera>();
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.1f, 0.11f, 0.14f);
-            cameraObject.AddComponent<DuelingCamera>();
-            cameraObject.transform.position = new Vector3(0f, 2f, -20f);
-
-            var light = new GameObject("Key Light").AddComponent<Light>();
-            light.type = LightType.Directional;
-            light.intensity = 1.1f;
-            light.shadows = LightShadows.Soft;
-            light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
-
-            new GameObject("Volley Duel").AddComponent<GameApp>();
-
-            EditorSceneManager.SaveScene(scene, ScenePath);
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
-            Debug.Log("Volley Duel: built " + ScenePath);
-        }
+        public static void BuildScenes() => SceneSetup.Rebuild();
 
         [MenuItem("Volley Duel/Validate Data")]
         public static void ValidateData()

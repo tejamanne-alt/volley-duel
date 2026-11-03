@@ -1,10 +1,10 @@
-using UnityEngine;
+using Duel.Core.Haptics;
 
 namespace VolleyDuel.Presentation
 {
     /// <summary>
-    /// Thin haptics hook. A Core Haptics and Android vibration plugin replaces the fallback later; until
-    /// then mobile builds use the platform's single buzz for medium and heavy hits.
+    /// Haptics for impacts, through Duel Core's thin native plugin: impact feedback on iOS and the
+    /// vibrator on Android. Settings can turn it off.
     /// </summary>
     public static class Haptics
     {
@@ -19,10 +19,8 @@ namespace VolleyDuel.Presentation
 
         public static void Pulse(Strength strength)
         {
-            if (!Enabled || strength == Strength.Light) return;
-#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-            Handheld.Vibrate();
-#endif
+            if (!Enabled) return;
+            DuelHaptics.Impact((HapticStrength)strength);
         }
     }
 }

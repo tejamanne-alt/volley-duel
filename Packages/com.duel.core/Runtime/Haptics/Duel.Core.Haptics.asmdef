@@ -1,0 +1,14 @@
+{
+    "name": "Duel.Core.Haptics",
+    "rootNamespace": "Duel.Core.Haptics",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
