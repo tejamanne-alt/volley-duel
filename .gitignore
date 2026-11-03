@@ -43,3 +43,7 @@ TestResults/
 # ---- Generated reports (re-created by the Balance Lab and gates) ----
 /artifacts/
 Tools/ReplayViewer/trace.json
+
+# ---- Python ----
+__pycache__/
+*.pyc
