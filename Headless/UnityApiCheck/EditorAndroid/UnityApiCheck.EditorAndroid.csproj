@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>UnityApiCheck.EditorAndroid</AssemblyName>
+    <DefineConstants>$(DefineConstants);UNITY_5_3_OR_NEWER;UNITY_6000_0_OR_NEWER;UNITY_EDITOR;UNITY_ANDROID</DefineConstants>
+    <UnityEditorVariant>true</UnityEditorVariant>
+  </PropertyGroup>
+  <Import Project="../UnityApiCheck.props" />
+</Project>

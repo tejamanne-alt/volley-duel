@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>UnityApiCheck.PlayerIos</AssemblyName>
+    <DefineConstants>$(DefineConstants);UNITY_5_3_OR_NEWER;UNITY_6000_0_OR_NEWER;UNITY_IOS</DefineConstants>
+    <UnityEditorVariant>false</UnityEditorVariant>
+  </PropertyGroup>
+  <Import Project="../UnityApiCheck.props" />
+</Project>

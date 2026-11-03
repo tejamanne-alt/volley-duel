@@ -27,6 +27,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.Transport.BLE", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Duel.Core.Transport.WiFiAware", "Duel.Core.Transport.WiFiAware\Duel.Core.Transport.WiFiAware.csproj", "{7CCD167F-81F4-454C-92CD-B277EF073AAB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnityApiCheck", "UnityApiCheck", "{9B2FB7C9-B8E6-44F5-8E15-78DD1CADB9A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityApiCheck.EditorAndroid", "UnityApiCheck\EditorAndroid\UnityApiCheck.EditorAndroid.csproj", "{A3085B64-BF63-44F4-B9B4-63A50DF78F0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityApiCheck.EditorIos", "UnityApiCheck\EditorIos\UnityApiCheck.EditorIos.csproj", "{9C91146A-9909-43B1-AA19-DF449A5FF4FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityApiCheck.PlayerAndroid", "UnityApiCheck\PlayerAndroid\UnityApiCheck.PlayerAndroid.csproj", "{D569F013-A6A9-4686-BA00-1011DFBBB725}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityApiCheck.PlayerIos", "UnityApiCheck\PlayerIos\UnityApiCheck.PlayerIos.csproj", "{C049C669-8EB7-4BF7-BDE4-16A8644D172E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +94,27 @@ Global
 		{7CCD167F-81F4-454C-92CD-B277EF073AAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CCD167F-81F4-454C-92CD-B277EF073AAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CCD167F-81F4-454C-92CD-B277EF073AAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3085B64-BF63-44F4-B9B4-63A50DF78F0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3085B64-BF63-44F4-B9B4-63A50DF78F0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3085B64-BF63-44F4-B9B4-63A50DF78F0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3085B64-BF63-44F4-B9B4-63A50DF78F0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C91146A-9909-43B1-AA19-DF449A5FF4FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C91146A-9909-43B1-AA19-DF449A5FF4FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C91146A-9909-43B1-AA19-DF449A5FF4FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C91146A-9909-43B1-AA19-DF449A5FF4FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D569F013-A6A9-4686-BA00-1011DFBBB725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D569F013-A6A9-4686-BA00-1011DFBBB725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D569F013-A6A9-4686-BA00-1011DFBBB725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D569F013-A6A9-4686-BA00-1011DFBBB725}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C049C669-8EB7-4BF7-BDE4-16A8644D172E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C049C669-8EB7-4BF7-BDE4-16A8644D172E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C049C669-8EB7-4BF7-BDE4-16A8644D172E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C049C669-8EB7-4BF7-BDE4-16A8644D172E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A3085B64-BF63-44F4-B9B4-63A50DF78F0A} = {9B2FB7C9-B8E6-44F5-8E15-78DD1CADB9A8}
+		{9C91146A-9909-43B1-AA19-DF449A5FF4FD} = {9B2FB7C9-B8E6-44F5-8E15-78DD1CADB9A8}
+		{D569F013-A6A9-4686-BA00-1011DFBBB725} = {9B2FB7C9-B8E6-44F5-8E15-78DD1CADB9A8}
+		{C049C669-8EB7-4BF7-BDE4-16A8644D172E} = {9B2FB7C9-B8E6-44F5-8E15-78DD1CADB9A8}
 	EndGlobalSection
 EndGlobal

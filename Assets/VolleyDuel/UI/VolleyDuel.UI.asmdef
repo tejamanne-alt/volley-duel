@@ -7,12 +7,11 @@
         "Duel.Core.AI",
         "Duel.Core.Transport.BLE",
         "Duel.Core.Transport.LAN",
-        "Duel.Core.Transport.WiFiAware",
         "VolleyDuel.Sim",
         "VolleyDuel.AI",
         "VolleyDuel.Presentation",
         "Unity.InputSystem",
-        "UnityEngine.UI"
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

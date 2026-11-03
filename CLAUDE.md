@@ -39,12 +39,18 @@ Assets/VolleyDuel/
   Resources/Data/ tuning.json, fighters/*.json, courts/*.json, manifest.json
 Packages/com.duel.core/
   Runtime/Sim     Duel.Core.Sim            Fix64, Rng streams, StateWriter/hash, FrameInput, InputTracker, events, replay, JSON
-  Runtime/Net     Duel.Core.Net            rollback session, handshake, time sync, desync recovery, ITransport
+  Runtime/Net     Duel.Core.Net            rollback session, handshake, time sync, desync recovery, ITransport, event ledger
   Runtime/AI      Duel.Core.AI             reaction delay, perception error, habit model, utility scoring
-  Runtime/Transport.LAN / .BLE / .WiFiAware
+  Runtime/Transport.LAN       Duel.Core.Transport.LAN        UDP, reliable control channel, beacon discovery
+  Runtime/Transport.BLE       Duel.Core.Transport.BLE        BleTransport + IBleBridge (iOS DllImport, Android JNI)
+  Runtime/Transport.WiFiAware Duel.Core.Transport.WiFiAware  placeholder, off (entitlement not requested)
+  Plugins/iOS/DuelBle.swift, Plugins/Android/DuelBle.kt      native BLE bridges (need the P0 device spike)
+  Editor          Duel.Core.Editor         build postprocess: Android permissions, iOS plist/Swift settings
   Tests/EditMode  Duel.Core.Tests
 Headless/          .NET 8 solution compiling the engine-free assemblies (C# 9, netstandard2.1, like Unity)
   Gates/           headless-only gates: static determinism scan, sim version hash
+  UnityApiCheck/   compiles Presentation, UI, Editor and the BLE bridges against Unity API stubs
+                   (4 variants: editor/player x Android/iOS); a type check, not a Unity build
 Tools/BalanceLab   headless CPU-vs-CPU runner (csproj in Headless/)
 Tools/ReplayViewer replay/trace viewer for reviewing sim output by eye
 Tools/Blender      export validation, VAT crowd baker, LOD scripts (P4)
@@ -62,7 +68,12 @@ dotnet test Headless/VolleyDuel.Headless.sln            # tests only
 dotnet run -c Release --project Headless/VolleyDuel.BalanceLab -- --help
 dotnet format whitespace Headless/VolleyDuel.Headless.sln # fix formatting
 python3 scripts/gen_meta.py              # add missing Unity .meta files (deterministic GUIDs)
+dotnet run -c Release --project Headless/VolleyDuel.BalanceLab -- netsoak --matches 30   # netcode soak gate
 ```
+
+In Unity: `Volley Duel/Setup Project`, then `Volley Duel/Build Scenes`, then press Play in
+`Assets/VolleyDuel/Scenes/Main.unity`. Keyboard: A/D move, W/S up/down, J HIT, K JUMP, L FEINT,
+U TRICK, I Amped TRICK, O FINISHER/DENY.
 
 The .NET SDK in the cloud container comes from Ubuntu's `dotnet-sdk-8.0` package.
 

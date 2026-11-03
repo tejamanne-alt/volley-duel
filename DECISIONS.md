@@ -251,3 +251,30 @@ over real BLE still needs two phones.
 Unity 6000.3. Unity rewrites core-package versions to the ones the editor ships, so a mismatch fixes
 itself on first open. `ProjectVersion.txt` says 6000.3.0f1; any 6.3 LTS patch works. Unity's NUnit is
 a 3.5 fork, so tests use only asserts that 3.5 has. The headless build runs NUnit 3.13.
+
+## Unity layer
+
+### U1. UI and graybox scenes are built from code
+- Menus, HUD, touch controls and the lobby are uGUI plus TextMeshPro, built at runtime.
+- The one scene (camera, light, `GameApp`) is created by `Volley Duel/Build Scenes`.
+- No prefab or scene YAML is committed or edited by hand (contract). Art replaces graybox
+  primitives later without touching game flow.
+
+### U2. Unity-facing code is type-checked headless against API stubs **review**
+- `Headless/UnityApiCheck` compiles Presentation, UI, Editor, the BLE bridges and the build
+  postprocess against stubs of the Unity 6 API they use.
+- It runs in four define sets: editor and player, for Android and iOS.
+- It catches typos and type errors in `./scripts/check.sh`. It does not prove behavior. The first
+  open in Unity 6.3 is still the real check, and the stubs must follow the real signatures.
+
+### U3. Presentation reads only the viewer's state
+`GameApp` passes `Visibility.ForViewer(truth, localPlayer)` to the views and the HUD. The screen
+therefore shows exactly what the CPU is allowed to see. The event ledger handles rollbacks:
+orphaned effects fade out fast, late ones spawn aged, and the ball blends onto the corrected flight
+over 4 frames.
+
+### U4. A rematch reuses the link
+- Both phones send `Rematch`; the finished session stops ticking; a fresh handshake runs with new
+  seeds.
+- Stray input packets from the old session are ignored by a plausibility guard on frame numbers.
+  There is a test for it, and it fails without the guard. Desync repair is the last line of defense.

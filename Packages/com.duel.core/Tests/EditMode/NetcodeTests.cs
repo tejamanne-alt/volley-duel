@@ -202,6 +202,28 @@ namespace Duel.Core.Tests
         }
 
         [Test]
+        public void StrayPacketsFromAnEarlierMatchAreIgnored()
+        {
+            var pair = new NetPair(new LinkProfile { LatencyMicros = 20000, JitterMicros = 5000 });
+            // Packets from a previous session at frame 65736 (u16 200) land on the fresh session at frame 0.
+            // Without the guard their inputs would claim frames 193-200 of the new match before the real
+            // ones arrive.
+            InputPacket stale = NetProtocol.BuildInputPacket(65736, 65730, f => new FrameInput(0x3F));
+            var buf = new byte[InputPacket.Size];
+            stale.Write(buf);
+            for (int i = 0; i < 5; i++) pair.Link.A.Send(buf, TransportChannel.Input);
+            pair.Run(600);
+            Assert.AreEqual(0, pair.A.Stats.Desyncs + pair.B.Stats.Desyncs);
+            Assert.AreEqual(pair.ReferenceHash(570), Hash(pair.B, 570), "the guest's timeline ignored the stray inputs");
+        }
+
+        static ulong Hash(RollbackSession<CounterState> s, int checkpoint)
+        {
+            Assert.IsTrue(s.TryGetConfirmedHash(checkpoint, out ulong h));
+            return h;
+        }
+
+        [Test]
         public void SilencePausesAndAShortDropoutResumes()
         {
             var pair = new NetPair(LinkProfile.Perfect);

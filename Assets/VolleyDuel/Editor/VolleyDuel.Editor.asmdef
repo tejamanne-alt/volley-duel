@@ -1,13 +1,15 @@
 {
     "name": "VolleyDuel.Editor",
-    "rootNamespace": "VolleyDuel.Editor",
+    "rootNamespace": "VolleyDuel.EditorTools",
     "references": [
         "Duel.Core.Sim",
         "VolleyDuel.Sim",
         "VolleyDuel.Presentation",
         "VolleyDuel.UI",
-        "Unity.InputSystem",
-        "UnityEngine.UI"
+        "Unity.TextMeshPro",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.TextMeshPro.Editor"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,0 +1,31 @@
+<Project>
+  <!--
+    Compile check for the Unity-facing code (Presentation, UI, Editor, BLE bridges, build postprocess)
+    against API stubs. It catches typos and type errors without the Unity editor. It is not a Unity build:
+    behavior, serialization and platform plug-ins are only verified in Unity and on devices.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Stubs/**/*.cs" />
+    <Compile Include="$(GameRoot)Presentation/**/*.cs" />
+    <Compile Include="$(GameRoot)UI/**/*.cs" />
+    <Compile Include="$(CorePackage)Runtime/Transport.BLE/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UnityEditorVariant)' == 'true'">
+    <Compile Include="$(GameRoot)Editor/**/*.cs" />
+    <Compile Include="$(CorePackage)Editor/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../Duel.Core.Sim/Duel.Core.Sim.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../Duel.Core.Net/Duel.Core.Net.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../Duel.Core.AI/Duel.Core.AI.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../Duel.Core.Transport.LAN/Duel.Core.Transport.LAN.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../VolleyDuel.Sim/VolleyDuel.Sim.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../VolleyDuel.AI/VolleyDuel.AI.csproj" />
+  </ItemGroup>
+</Project>

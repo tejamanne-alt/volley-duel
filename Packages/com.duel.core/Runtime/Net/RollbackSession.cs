@@ -86,6 +86,8 @@ namespace Duel.Core.Net
     {
         const int RingSize = 256;
         const int RingMask = RingSize - 1;
+        /// <summary>How far ahead of our frame a remote input can plausibly be (rollback budget, delay and RTT, with margin).</summary>
+        const int PlausibleLead = 96;
 
         readonly ISimulation<TState> sim;
         readonly ITransport transport;
@@ -387,6 +389,9 @@ namespace Duel.Core.Net
             Stats.PacketsReceived++;
             int latest = FrameWire.Expand(p.LatestFrame, Math.Max(remoteLatest, frame));
             int ack = FrameWire.Expand(p.AckFrame, localNext);
+            // A real peer is never far outside the rollback window. Anything else is a stray packet (for
+            // example from the previous match after a rematch), and its frames would poison the input ring.
+            if (latest > frame + PlausibleLead || latest < remoteContiguous - RingSize / 2) return;
             // Only the sender's newest window says where it is now; resent gap windows and late packets do not.
             bool newest = latest >= remoteLatest;
             if (latest > remoteLatest)
